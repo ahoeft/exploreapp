@@ -24,6 +24,9 @@
 				Avatar: <span class="menuItem {{character.class}}"></span>
 			</div>
 			<div>
+				Level: {{character.level}}
+			</div>
+			<div>
 				Strength: {{character.str}} 
 				<a ng-click="addAttribute('str', $index)"><i class="fa fa-plus" aria-hidden="true"></i></a>
 			</div>
@@ -46,6 +49,9 @@
 			</div>
 			<div>
 				Points Left: {{character.pointsLeft}}
+			</div>
+			<div>
+				Experience Until Next Level: {{10 - character.xp}}
 			</div>
 		</div>
 		<div class="btn">
@@ -252,6 +258,7 @@
 					<div>Health Remaining: {{character.health - character.damageTaken}}</div>
 					<div>Mana Remaining: {{character.mana - character.manaSpent}}</div>
 					<div>Moves Remaining: {{character.speed - character.movesTaken}}</div>
+					<div>Experience Until Next Level: {{10 - character.xp}}</div>
 				</div>
 				<div class="title">Combat Log</div>
 				<div>{{combatInfo}}</div>

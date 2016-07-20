@@ -43,10 +43,10 @@ myApp.controller('mainController', function($scope, $timeout) {
 
   var createCharacters = function() {
     $scope.game.characters = [
-      { name: "Spike", class: "avatar1", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3},
-      { name: "Albert", class: "avatar2", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3},
-      { name: "Sandra", class: "avatar3", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3},
-      { name: "Coco", class: "avatar4", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3}
+      { name: "Spike", class: "avatar1", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3, level: 1, xp: 0},
+      { name: "Albert", class: "avatar2", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3, level: 1, xp: 0},
+      { name: "Sandra", class: "avatar3", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3, level: 1, xp: 0},
+      { name: "Coco", class: "avatar4", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3, level: 1, xp: 0}
     ];
   };
 
@@ -229,6 +229,7 @@ myApp.controller('mainController', function($scope, $timeout) {
       enemy.damage = 3;
       enemy.speed = 2;
       enemy.drops = "2 gel ";
+      enemy.xp = 3;
       $scope.game.enemies.push(enemy);
     }
   };
@@ -304,7 +305,7 @@ myApp.controller('mainController', function($scope, $timeout) {
   };
 
   var damageCharacter = function (targetCharacterIndex, activeEnemyIndex) {
-    var damageDealt = Math.round(Math.random() * $scope.game.enemies[activeEnemyIndex].damage) + 1;
+    var damageDealt = Math.round(Math.random() * $scope.game.enemies[activeEnemyIndex].damage) + Math.floor($scope.game.enemies[activeEnemyIndex].str / 2);
     $scope.game.characters[targetCharacterIndex].damageTaken += damageDealt;
     $scope.combatInfo += $scope.game.enemies[activeEnemyIndex].name + " deals " + damageDealt + " to " + $scope.game.characters[targetCharacterIndex].name + ". ";
     if($scope.game.characters[targetCharacterIndex].health <= $scope.game.characters[targetCharacterIndex].damageTaken) {
@@ -336,6 +337,7 @@ myApp.controller('mainController', function($scope, $timeout) {
       
       var tileFound = findTile(tile);
       if(tileFound) {
+        console.log("tile has been found");
         $scope.hasMoved = true;
         var leftTarget = $scope.game.characters[characterIndex].left - 50;
         var rightTarget = $scope.game.characters[characterIndex].left + 50;
@@ -371,9 +373,21 @@ myApp.controller('mainController', function($scope, $timeout) {
           if ($scope.game.characters[characterIndex].left == $scope.game.validMoves[0].left && $scope.game.characters[characterIndex].top == $scope.game.validMoves[0].top) {
             $scope.game.characters[characterIndex].movesTaken++;
             //check to see if moves are left
-            if($scope.game.characters[characterIndex].movesTaken < $scope.game.characters[characterIndex].speed && $scope.game.characters[characterIndex].left !== tile.left && $scope.game.characters[characterIndex].top !== tile.top) {
-              travelToHereCombat(tile);
+            if($scope.game.characters[characterIndex].movesTaken < $scope.game.characters[characterIndex].speed) {
+              console.log("not there yet, try to move again");
+              if($scope.game.characters[characterIndex].left == tile.left && $scope.game.characters[characterIndex].top == tile.top) {
+                console.log("tileLeft:" + tile.left);
+                console.log("characterLeft:" + $scope.game.characters[characterIndex].left);
+                console.log("tileLeft:" + tile.top);
+                console.log("characterTop:" + $scope.game.characters[characterIndex].top);
+                console.log("found it!  stop moving.");
+                clearCombatTiles();
+              } else {
+                console.log("couldn't find it, try again");
+                travelToHereCombat(tile);
+              }
             } else {
+              console.log("Outta moves.");
               clearCombatTiles();
             }
           } else {
@@ -751,6 +765,26 @@ myApp.controller('mainController', function($scope, $timeout) {
     $scope.combatInfo += "It drops " + numItem + " " + itemName + ". ";
   };
 
+  var levelUp = function (characterIndex) {
+    $scope.combatInfo = $scope.game.characters[characterIndex].name + " levels up! ";
+    $scope.game.characters[characterIndex].xp = 0;
+    $scope.game.characters[characterIndex].level++;
+    calculateHealth(characterIndex);
+    calculateMana(characterIndex);
+    $scope.game.characters[characterIndex].pointsLeft += 3;
+  };
+
+  var giveExperience = function (enemyIndex, characterIndex) {
+    var experienceGained = $scope.game.enemies[enemyIndex].xp - $scope.game.characters[characterIndex].level;
+    if(experienceGained > 0) {
+      $scope.combatInfo = $scope.game.characters[characterIndex].name + " gains " + experienceGained + "experience. ";
+      $scope.game.characters[characterIndex].xp += experienceGained;
+      if($scope.game.characters[characterIndex].xp > 9) {
+        levelUp(characterIndex);
+      }
+    }
+  };
+
   var killEnemy = function(enemyIndex) {
     //ToDo figure out item drop system
     var turnToRemove = 0;
@@ -760,6 +794,7 @@ myApp.controller('mainController', function($scope, $timeout) {
       }
     }
     dropLoot(enemyIndex);
+    giveExperience(enemyIndex, findCharacterIndex());
     $scope.turnOrder.splice(turnToRemove, 1);
     $scope.game.enemies.splice(enemyIndex, 1);
     if($scope.game.enemies.length < 1) {
@@ -807,6 +842,7 @@ myApp.controller('mainController', function($scope, $timeout) {
     if($scope.game.attackMode == true) {
       resolveAttack(tile);
     } else {
+      console.log("starting character movement");
       travelToHereCombat(tile);
     }
   };
@@ -877,11 +913,11 @@ myApp.controller('mainController', function($scope, $timeout) {
   };
   
   var calculateHealth = function (index) {
-    $scope.game.characters[index].health = 5 + Math.floor($scope.game.characters[index].str / 2);
+    $scope.game.characters[index].health = 3 + ($scope.game.characters[index].level * 2) + Math.floor($scope.game.characters[index].str / 2);
   };
 
   var calculateMana = function (index) {
-    $scope.game.characters[index].mana = 1 + Math.floor($scope.game.characters[index].int / 2);
+    $scope.game.characters[index].mana = ($scope.game.characters[index].level * 1) + Math.floor($scope.game.characters[index].int / 2);
   };
 
   $scope.addAttribute = function(attribute, index) {
