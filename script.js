@@ -584,7 +584,7 @@ myApp.controller('mainController', function($scope, $timeout) {
 
   var checkForEncounter = function () {
     var randomPercent = Math.round(Math.random() * 99) + 1;
-    if(randomPercent > 0) {
+    if(randomPercent > 50) {
       generateEncounter();
     }
   };
@@ -805,7 +805,7 @@ myApp.controller('mainController', function($scope, $timeout) {
   var giveExperience = function (enemyIndex, characterIndex) {
     var experienceGained = $scope.game.enemies[enemyIndex].xp - $scope.game.characters[characterIndex].level;
     if(experienceGained > 0) {
-      $scope.combatInfo = $scope.game.characters[characterIndex].name + " gains " + experienceGained + "experience. ";
+      $scope.combatInfo += $scope.game.characters[characterIndex].name + " gains " + experienceGained + " experience. ";
       $scope.game.characters[characterIndex].xp += experienceGained;
       if($scope.game.characters[characterIndex].xp > 9) {
         levelUp(characterIndex);
