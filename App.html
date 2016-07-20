@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="./font-awesome-4.6.3/css/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="gamestyle.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+    <script src="script.js"></script>
+<title>Explore</title>
+</head>
+<body ng-app="myApp">
+<div ng-controller="mainController">
+	<!--Start up Game View-->
+	<div ng-show="activeView == 'main'">
+		<input type="button" value="Start" ng-click="newGame()">
+		<input type ="button" value="Load" ng-click="loadGame()">
+	</div>
+	<!--New Game View-->
+	<div ng-show="activeView == 'showCharacterView'">
+		<div class="characterBox" ng-repeat="character in game.characters track by $index">
+			<div>
+				<input ng-show="newGame" type="text" ng-model="character.name"> <span ng-hide="newGame">{{character.name}}</span>
+			</div>
+			<div>
+				Avatar: <span class="menuItem {{character.class}}"></span>
+			</div>
+			<div>
+				Strength: {{character.str}} 
+				<a ng-click="addAttribute('str', $index)"><i class="fa fa-plus" aria-hidden="true"></i></a>
+			</div>
+			<div>
+				Dexterity: {{character.dex}} 
+				<a ng-click="addAttribute('dex', $index)"><i class="fa fa-plus" aria-hidden="true"></i></a>
+			</div>
+			<div>
+				Intelligence: {{character.int}} 
+				<a ng-click="addAttribute('int', $index)"><i class="fa fa-plus" aria-hidden="true"></i></a>
+			</div>
+			<div>
+				Health: {{character.health}}
+			</div>
+			<div>
+				Speed: {{character.speed}}
+			</div>
+			<div>
+				Mana: {{character.mana}}
+			</div>
+			<div>
+				Points Left: {{character.pointsLeft}}
+			</div>
+		</div>
+		<div class="btn">
+			<i class="fa fa-map-o" aria-hidden="true"></i>
+					<a ng-mouseover="infoHover('worldMap')" 
+						ng-click="navToWorldMap()">World Map</a>
+		</div>
+	</div>
+	<!--Overland Map View-->
+	<div ng-show="activeView == 'showGame'">
+		<div class="c1"><!--placeholder for left side--></div>
+		<div class="c2">
+			<div id="map">
+				<span ng-repeat="tile in game.tiles" 
+						class="tile {{tile.class}} {{game.night}}" 
+						style="top: {{tile.top}}px; left: {{tile.left}}px" 
+						ng-mouseover="infoHover(tile.class)"
+						
+						ng-click="travelToHere(tile)"></span>
+				<span class="worldCharacter" style="top: {{game.team.top}}px; left: {{game.team.left}}px">C</span>
+			</div>
+		</div>
+		<div class="c3">
+			<div id="infoBox">
+				<div>Name: {{game.name}} <i class="fa fa-child" aria-hidden="true"></i></div>
+				<div>Day: {{game.day}}</div>
+				<div><i class="fa fa-clock-o" aria-hidden="true"></i>: {{game.clock}}</div>
+				<div class="title">Info</div>
+				<div>{{infoBox}}</div>
+			</div>
+			<ul>
+				<li>
+					<i class="fa fa-gavel" aria-hidden="true"></i>
+					<a ng-mouseover="infoHover('crafting')" 
+						
+						ng-click="viewCrafting()">Craft</a>	
+				</li>
+				<li>
+					<i class="fa fa-search" aria-hidden="true"></i>
+					<a ng-mouseover="infoHover('harvesting')" 
+						
+						ng-click="harvest()">Harvest</a>	
+				</li>
+				<li>
+					<i class="fa fa-level-up" aria-hidden="true"></i>
+					<a ng-mouseover="infoHover('characters')" 
+						
+						ng-click="navToCharacters()">Characters</a>
+				</li>
+				<li>
+					<i class="fa fa-location-arrow" aria-hidden="true"></i>
+					<a ng-mouseover="infoHover('traveling')" 
+						
+						ng-click="travel()"> Travel</a>
+				</li>
+				<li>
+					<i class="fa fa-floppy-o" aria-hidden="true"></i>
+					<a ng-mouseover="infoHover('saving')" 
+						
+						ng-click="saveGame()">Save Game</a>
+				</li>
+				<li>
+					<i class="fa fa-download" aria-hidden="true"></i>
+					<a ng-mouseover="infoHover('loading')" 
+						
+						ng-click="loadGame()">Load Game</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<!--Loading View-->
+	<div ng-show="activeView == 'showLoad'">
+		Load Showing
+		<div>
+			<ul>
+				<li ng-repeat="game in savedGames">
+					<a ng-click="loadThisGame(game)">{{game.name}}</a>
+					<i ng-click="deleteSaveFile(game, $index)" class="fa fa-trash-o" aria-hidden="true"></i>
+				</li>
+			</ul>
+		</div> 
+	</div>
+	<!--Crafting View--> 
+	<div ng-show="activeView == 'showCraft'">
+		<div class="c1">
+			<ul>
+				<li>
+					<i class="fa fa-map-o" aria-hidden="true"></i>
+					<a ng-mouseover="infoHover('worldMap')" 
+						
+						ng-click="navToWorldMap()">World Map</a> 
+				</li>
+				<li>
+					<i class="fa fa-flask" aria-hidden="true"></i>
+					<a ng-mouseover="infoHover('equip')" 
+						
+						ng-click="equipItem()">Equip Items</a>
+				</li>
+				<li>
+					<i class="fa fa-floppy-o" aria-hidden="true"></i>
+					<a ng-mouseover="infoHover('saving')" 
+						
+						ng-click="saveGame()">Save Game</a>
+				</li>
+				<li>
+					<i class="fa fa-download" aria-hidden="true"></i>
+					<a ng-mouseover="infoHover('loading')" 
+						
+						ng-click="loadGame()">Load Game</a>
+				</li>
+			</ul>
+		</div>
+		<div class="c2">
+			<div class="floatOn">
+				<table>
+					<caption>Recipes</caption>
+					<tr>
+						<td></td>
+						<td>Recipe Name</td>
+						<td>Required Items</td>
+						<td>Item Type</td>
+					</tr>
+					<tr ng-repeat="recipe in game.availableRecipes track by $index" ng-click="craftMe(recipe)">
+						<td><img ng-src="{{recipe.img}}"></td>
+						<td>{{recipe.name}}</td>
+						<td>{{recipe.requiredItems}}</td>
+						<td>{{recipe.itemType}}</td>
+					</tr>
+				</table>
+			</div>
+			<div class="floatOn">
+				<table>
+					<caption>Inventory</caption>
+					<tr>
+						<td></td>
+						<td>Item Name</td>
+						<td>Item Type</td>
+						<td>Item Description</td>
+					</tr>
+					<tr ng-repeat="item in game.inventory track by $index" ng-click="selectItemFromInventory(item)">
+						<td><img ng-src="{{item.img}}"></td>
+						<td>{{item.name}}</td>
+						<td>{{item.type}}</td>
+						<td>{{item.description}}</td>
+					</tr>
+				</table>
+			</div>
+
+		</div>
+		<div class="c3">
+			<div id="infoBox">
+				<div>Name: {{game.name}} <i class="fa fa-child" aria-hidden="true"></i></div>
+				<div>Day: {{game.day}}</div>
+				<div><i class="fa fa-clock-o" aria-hidden="true"></i>: {{game.clock}}</div>
+				<div class="title">Info</div>
+				<div>{{infoBox}}</div>
+			</div>
+		</div>
+	</div>
+	<!--Combat View-->
+	<div ng-show="activeView == 'showCombatView'">
+		<div class="c1">
+			<ul>
+				<li>Active Turn: {{activeTurn.name}}<span class="menuItem {{activeTurn.class}}"></span></li>
+				<li><strong>Combat Options</strong></li>
+				<li><a ng-hide="hasMoved" ng-click="highlightCombat('move')">Move</a>
+					<a ng-show="hasMoved" class="menuDisabled">Move</a>
+				</li>
+				<li><a ng-hide="hasAttacked" ng-click="highlightCombat('attack')">Attack</a>
+					<a ng-show="hasAttacked" class="menuDisabled">Attack</a>
+				</li>
+				<li><a ng-hide="hasAttacked" ng-click="">Special</a>
+					<a ng-show="hasAttacked" class="menuDisabled">Special</a>
+				</li>
+				<li><a ng-click="doNextCombatRound(false)">End Turn</a></li>
+			</ul>
+		</div>
+		<div class="c2">
+			<span ng-repeat="tile in game.combatTiles" 
+						class="tile {{tile.class}} {{game.night}}" 
+						style="top: {{tile.top}}px; left: {{tile.left}}px" 
+						ng-click="resolveCombatAction(tile)"></span>
+			<span ng-repeat="enemy in game.enemies" 
+						class="enemy tile {{enemy.class}}" 
+						style="top: {{enemy.top}}px; left: {{enemy.left}}px"
+						id="enemy{{$index}}"></span>
+			<span ng-repeat="character in game.characters" 
+						class="{{character.class}} character tile" 
+						style="top: {{character.top}}px; left: {{character.left}}px">
+						</span>
+			<span ng-repeat="hazard in game.hazards" 
+						class="{{hazard.class}} tile" 
+						style="top: {{hazard.top}}px; left: {{hazard.left}}px">
+						</span>
+		</div>
+		<div class="c3">
+			<div id="infoBox">
+				<div>Name: {{game.name}} <i class="fa fa-child" aria-hidden="true"></i></div>
+				<div>Day: {{game.day}}</div>
+				<div><i class="fa fa-clock-o" aria-hidden="true"></i>: {{game.clock}}</div>
+				<div class="title">Character Info</div>
+				<div ng-repeat="character in game.characters track by $index">
+					<div><span class="menuItem {{character.class}}"></span> {{character.name}}</div>
+					<div>Health Remaining: {{character.health - character.damageTaken}}</div>
+					<div>Mana Remaining: {{character.mana - character.manaSpent}}</div>
+					<div>Moves Remaining: {{character.speed - character.movesTaken}}</div>
+				</div>
+				<div class="title">Combat Log</div>
+				<div>{{combatInfo}}</div>
+			</div>
+		</div>
+	</div>
+	<!--GAME OVER-->
+	<div ng-show="activeView == 'showGameOver'">Lol, you died.</div>
+</div>
+</body>
+</html>

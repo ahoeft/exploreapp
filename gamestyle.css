@@ -1,0 +1,178 @@
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 100px;
+}
+
+li {
+    display: inline-block;
+    color: #000;
+    background-color: #f1f1f1;
+    padding: 8px 8px 8px 8px;
+    width: 100%;
+    text-align: center;
+    text-decoration: none;
+}
+
+li:hover {
+    cursor: pointer;
+    background-color: yellow;
+}
+
+
+.c1 {
+    display: inline-block;
+    width: 10%;
+    vertical-align: top;
+}
+
+.c2 {
+    display: inline-block;
+    width: 70%;
+}
+
+.c3 {
+    display: inline-block;
+    vertical-align: top;
+}
+
+#infoBox {
+    width: 160px;
+    height:160px;
+    text-align: center;
+    background-color: #f1f1f1;
+    margin: 25px;
+}
+
+.tile {
+    position: absolute;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    border: 1px solid black;
+    z-index: 1;
+}
+
+.ocean {
+    background-color: cornflowerblue;
+}
+
+.beach {
+    background-color: sandybrown;
+}
+
+.title {
+    font-weight: bold;
+    text-decoration: underline;
+    display: inline-block;
+}
+.info {
+    display: table-row-group;
+}
+
+.night {
+    opacity: 1.0;
+}
+
+.day {
+    opacity: .5;
+}
+
+.worldCharacter {
+    z-index: 4;
+    position: absolute;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+}
+
+.highlightTile {
+    background-color: #ff6 !important;
+}
+
+.highlightAttack {
+    opacity: .5;
+    background-color: #049 !important;
+    z-index: 3;
+}
+
+.highlightMove {
+    background-color: #ff6 !important;
+}
+
+table, th, td {
+    border: 1px solid black;
+    text-align: center;
+}
+
+tr:hover {
+    background-color: lightyellow;
+}
+
+.floatOn {
+    float: left;
+}
+
+.backpackIcon {
+    height: 10px;
+    width: 10px;
+    background-image: url("./images/backpackicon.png");
+}
+
+.characterBox {
+    padding: 8px;
+    margin: 10px;
+    float: left;
+    width: 250px;
+    border: 1px solid black;
+}
+
+.enemy {
+    z-index: 2;
+}
+
+.gel {
+    background-image: url("./images/gel.png");
+}
+.btn {
+    cursor: pointer;
+    background-color: yellow;
+}
+.character {
+    z-index: 4;
+}
+
+.menuDisabled {
+    color: gray;
+}
+
+.rock {
+    background-image: url("./images/transparent/transparentrock.png");
+    z-index: 4;
+}
+
+.avatar1 {
+    background-image: url("./images/defaultavatar.png");
+}
+
+.avatar2 {
+    background-image: url("./images/defaultavatar.png");
+}
+
+.avatar3 {
+    background-image: url("./images/defaultavatar.png");
+}
+
+.avatar4 {
+    background-image: url("./images/defaultavatar.png");
+}
+
+.menuItem {
+    display: inline-block;
+    margin: 5px;
+    height: 50px;
+    width: 50px;
+    border: 1px solid black;
+    z-index: 1;
+}
