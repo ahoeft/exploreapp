@@ -832,7 +832,11 @@ myApp.controller('mainController', function($scope, $timeout) {
 
   var damageEnemy = function (enemyIndex) {
     var characterIndex = findCharacterIndex();
-    var damageDelt = 1 + Math.floor($scope.game.characters[characterIndex].str / 2);
+    var damageMax = 1;
+    if($scope.game.characters[characterIndex].weapon) {
+      damageMax = $scope.game.characters[characterIndex].weapon.damage;
+    }
+    var damageDelt = damageMax + Math.floor($scope.game.characters[characterIndex].str / 2);
     $scope.game.enemies[enemyIndex].damageTaken += damageDelt;
     $scope.combatInfo += $scope.game.characters[characterIndex].name + " deals " + damageDelt + " to " + $scope.game.enemies[enemyIndex].name + ". ";
     //check if monster dies
@@ -1017,13 +1021,14 @@ myApp.controller('mainController', function($scope, $timeout) {
       $scope.game.inventory.splice(item.inventoryIndex, 1);
     }
     $scope.game.equipables = [];
+    $scope.showEquipables = false;
   };
 
   $scope.equipWeapon = function (characterIndex) {
     $scope.game.equipables = [];
     for(i in $scope.game.inventory) {
       if("weapon" == $scope.game.inventory[i].type) {
-        var item =$scope.game.inventory[i];
+        var item = $scope.game.inventory[i];
         item.inventoryIndex = i;
         $scope.game.equipables.push(item);
       }
