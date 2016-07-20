@@ -45,6 +45,12 @@ li:hover {
     margin: 25px;
 }
 
+#craftingInfoBox {
+    width: 160px;
+    background-color: #f1f1f1;
+    margin: 25px;
+}
+
 #combatInfoBox {
     background-color: #f1f1f1;
     margin: 25px;
@@ -190,6 +196,7 @@ tr:hover {
     z-index: 1;
 }
 .xpContainer {
+    text-align: center;
     width: 100px;
     background-color: lightgray;
     border: 1px solid black;
@@ -203,3 +210,31 @@ tr:hover {
     left: 250px;
     background-color: lightgray;
 }
+
+.armorSlot {
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    border: 1px solid black;
+    margin: 8px;
+    background-image: url("./images/armorslot.png");
+}
+
+.bootsSlot {
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    border: 1px solid black;
+    margin: 8px;
+    background-image: url("./images/bootslot.png");
+}
+
+.weaponSlot {
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    border: 1px solid black;
+    margin: 8px;
+    background-image: url("./images/weaponslot.png");
+}
+

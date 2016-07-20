@@ -1036,4 +1036,10 @@ myApp.controller('mainController', function($scope, $timeout) {
     $scope.showEquipables = true;
     $scope.characterToEquip = characterIndex;
   }
+
+  $scope.unequipWeapon = function(characterIndex){
+    $scope.game.inventory.push($scope.game.characters[characterIndex].weapon);
+    $scope.game.characters[characterIndex].weapon = {};
+    $scope.game.characters[characterIndex].weaponEquipped = false;
+  };
 });
