@@ -16,11 +16,12 @@ myApp.controller('mainController', function($scope, $timeout) {
   $scope.game.inventory.push(item);
   $scope.game.beastiary = [];
   $scope.game.availableRecipes = [];
+  $scope.game.equipables = [];
   $scope.recipeDB = [
     { name: "glass", requiredItems: "2 sand ", itemType: "material", img: "./images/glass.png", description: "A brittle crafting material.  It requires a furnace." }, 
     { name: "sandstone", requiredItems: "2 sand ", itemType: "material", img: "./images/sandstone.png", description: "A useful but hard crafting material." },
     { name: "sandstone hut", requiredItems: "5 sandstone ", itemType: "structure", img: "./images/sandstonehut.png", description: "This structure will protect you from monsters at night!" },
-    { name: "shelldagger", requiredItems: "2 shell ", itemType: "weapon", img: "./images/shelldagger.png", description: "This tiny shell dagger adds 1 damage."}
+    { name: "shell dagger", requiredItems: "2 shell ", itemType: "weapon", img: "./images/shelldagger.png", description: "This tiny shell dagger adds 1 damage.", damage: 2}
   ];
 
   $scope.enemyDB = [
@@ -44,10 +45,10 @@ myApp.controller('mainController', function($scope, $timeout) {
 
   var createCharacters = function() {
     $scope.game.characters = [
-      { name: "Spike", class: "avatar1", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3, level: 1, xp: 0},
-      { name: "Albert", class: "avatar2", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3, level: 1, xp: 0},
-      { name: "Sandra", class: "avatar3", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3, level: 1, xp: 0},
-      { name: "Coco", class: "avatar4", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3, level: 1, xp: 0}
+      { name: "Spike", class: "avatar1", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3, level: 1, xp: 0, weaponEquipped: false, armorEquipped: false, bootsEquipped: false},
+      { name: "Albert", class: "avatar2", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3, level: 1, xp: 0, weaponEquipped: false, armorEquipped: false, bootsEquipped: false},
+      { name: "Sandra", class: "avatar3", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3, level: 1, xp: 0, weaponEquipped: false, armorEquipped: false, bootsEquipped: false},
+      { name: "Coco", class: "avatar4", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3, level: 1, xp: 0, weaponEquipped: false, armorEquipped: false, bootsEquipped: false}
     ];
   };
 
@@ -617,6 +618,7 @@ myApp.controller('mainController', function($scope, $timeout) {
   };
 
   $scope.selectItemFromInventory = function(item) {
+    $scope.showEquipables = false;
     for(var i in $scope.recipeDB) {
       if($scope.recipeDB[i].requiredItems.includes(" " + item.name + " ")) {
         var addMe = verifyMaterialInInventory($scope.recipeDB[i].requiredItems);
@@ -1006,4 +1008,27 @@ myApp.controller('mainController', function($scope, $timeout) {
       $scope.savedGames.splice(index, 1);
       window.localStorage.removeItem(game.name + "savedGame");
   };
+
+  $scope.equipItem = function (item) {
+    //handle this!
+    if("weapon" == item.type) {
+      $scope.game.characters[$scope.characterToEquip].weapon = item;
+      $scope.game.characters[$scope.characterToEquip].weaponEquipped = true;
+      $scope.game.inventory.splice(item.inventoryIndex, 1);
+    }
+    $scope.game.equipables = [];
+  };
+
+  $scope.equipWeapon = function (characterIndex) {
+    $scope.game.equipables = [];
+    for(i in $scope.game.inventory) {
+      if("weapon" == $scope.game.inventory[i].type) {
+        var item =$scope.game.inventory[i];
+        item.inventoryIndex = i;
+        $scope.game.equipables.push(item);
+      }
+    }
+    $scope.showEquipables = true;
+    $scope.characterToEquip = characterIndex;
+  }
 });

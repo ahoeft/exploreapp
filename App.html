@@ -165,7 +165,7 @@
 			</ul>
 		</div>
 		<div class="c2">
-			<div class="floatOn">
+			<div ng-hide="showEquipables" class="floatOn">
 				<table>
 					<caption>Recipes</caption>
 					<tr>
@@ -199,6 +199,23 @@
 					</tr>
 				</table>
 			</div>
+			<div ng-show="showEquipables" class="floatOn">
+				<table>
+					<caption>Equipables</caption>
+					<tr>
+						<td></td>
+						<td>Item Name</td>
+						<td>Item Type</td>
+						<td>Item Description</td>
+					</tr>
+					<tr ng-repeat="item in game.equipables track by $index" ng-click="equipItem(item)">
+						<td><img ng-src="{{item.img}}"></td>
+						<td>{{item.name}}</td>
+						<td>{{item.type}}</td>
+						<td>{{item.description}}</td>
+					</tr>
+				</table>
+			</div>
 
 		</div>
 		<div class="c3">
@@ -208,6 +225,21 @@
 				<div><i class="fa fa-clock-o" aria-hidden="true"></i>: {{game.clock}}</div>
 				<div class="title">Info</div>
 				<div>{{infoBox}}</div>
+				<div ng-repeat="character in game.characters track by $index">
+					<div><span class="menuItem {{character.class}}"></span> {{character.name}}</div>
+					<div>Experience Until Next Level: 
+						<div class="xpContainer">
+							<div style="width:{{(10 - character.xp)/10 * 100}}%; background-color: lightgreen">{{10 - character.xp}} / 10</div>
+						</div>
+					</div>
+					<div>
+						<a ng-show="character.weaponEquipped" ng-click="unequipWeapon($index)"><img ng-src="{{character.weapon.img}}" /></a>
+						<a class="menuItem" ng-hide="character.weaponEquipped" ng-click="equipWeapon($index)">Equip Weapon</a>
+					</div>
+					
+					<div class="menuItem"></div>
+					<div class="menuItem"></div>
+				</div>
 			</div>
 		</div>
 	</div>
