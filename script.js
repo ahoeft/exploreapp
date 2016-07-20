@@ -331,7 +331,7 @@ myApp.controller('mainController', function($scope, $timeout) {
     $scope.doNextCombatRound(false);
   };
 
-  $scope.travelToHereCombat = function(tile) {
+  var travelToHereCombat = function(tile) {
       var characterIndex = findCharacterIndex();
       
       var tileFound = findTile(tile);
@@ -370,8 +370,9 @@ myApp.controller('mainController', function($scope, $timeout) {
         function delayMove(characterIndex, tile) {
           if ($scope.game.characters[characterIndex].left == $scope.game.validMoves[0].left && $scope.game.characters[characterIndex].top == $scope.game.validMoves[0].top) {
             $scope.game.characters[characterIndex].movesTaken++;
+            //check to see if moves are left
             if($scope.game.characters[characterIndex].movesTaken < $scope.game.characters[characterIndex].speed && $scope.game.characters[characterIndex].left !== tile.left && $scope.game.characters[characterIndex].top !== tile.top) {
-              $scope.travelToHereCombat(tile);
+              travelToHereCombat(tile);
             } else {
               clearCombatTiles();
             }
@@ -701,7 +702,7 @@ myApp.controller('mainController', function($scope, $timeout) {
   var findTile = function (tile) {
     var tileFound = false;
       for(var i in $scope.game.tilesToHighlight) {
-        if($scope.game.tilesToHighlight[i].id == tile.id && !tile.class.includes("hazard")) {
+        if($scope.game.tilesToHighlight[i].id == tile.id) {
           tileFound = true;
         }
       }
@@ -806,7 +807,7 @@ myApp.controller('mainController', function($scope, $timeout) {
     if($scope.game.attackMode == true) {
       resolveAttack(tile);
     } else {
-      $scope.travelToHereCombat(tile);
+      travelToHereCombat(tile);
     }
   };
 
