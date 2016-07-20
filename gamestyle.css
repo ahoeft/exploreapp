@@ -45,6 +45,11 @@ li:hover {
     margin: 25px;
 }
 
+#combatInfoBox {
+    background-color: #f1f1f1;
+    margin: 25px;
+}
+
 .tile {
     position: absolute;
     display: inline-block;
@@ -183,4 +188,18 @@ tr:hover {
     width: 50px;
     border: 1px solid black;
     z-index: 1;
+}
+.xpContainer {
+    width: 100px;
+    background-color: lightgray;
+    border: 1px solid black;
+}
+
+#combatLog {
+    position: absolute;
+    width: 500px;
+    height: 150px;
+    top: 615px;
+    left: 250px;
+    background-color: lightgray;
 }
