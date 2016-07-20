@@ -1,7 +1,7 @@
 //declare myApp
 var myApp = angular.module('myApp', []);
 
-myApp.controller('mainController', function($scope) {
+myApp.controller('mainController', function($scope, $timeout) {
 	//initialize game
   $scope.activeView = 'main';
   $scope.game = {};
@@ -23,6 +23,10 @@ myApp.controller('mainController', function($scope) {
     { name: "shelldagger", requiredItems: "2 shell ", itemType: "weapon", img: "./images/shelldagger.png", description: "This tiny shell dagger adds 1 damage."}
   ];
 
+  $scope.enemyDB = [
+    { name: "Blue Jelly", health: 2, mana: 1, str: 1, dex: 1, int: 1, damage: 3, damageTaken: 0, speed: 2, drops: "2 gel ", area: "beach"}
+  ];
+
   $scope.droppableItems = [
     { name: "gel", img: "./images/gel.png", type:"material", description: "A sticky crafting material." }
   ];
@@ -39,10 +43,10 @@ myApp.controller('mainController', function($scope) {
 
   var createCharacters = function() {
     $scope.game.characters = [
-      { name: "char1", class: "avatar1", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3},
-      { name: "char2", class: "avatar2", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3},
-      { name: "char3", class: "avatar3", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3},
-      { name: "char4", class: "avatar4", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3}
+      { name: "Spike", class: "avatar1", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3},
+      { name: "Albert", class: "avatar2", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3},
+      { name: "Sandra", class: "avatar3", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3},
+      { name: "Coco", class: "avatar4", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3}
     ];
   };
 
@@ -135,6 +139,28 @@ myApp.controller('mainController', function($scope) {
       }
     }
     return occupied;
+  };
+
+  var occupiedByCharacter = function (unoccupiedPosition) {
+    var occupied = false;
+    //loop through enemies
+    for(var c in $scope.game.characters) {
+      if(unoccupiedPosition.top == $scope.game.characters[c].top && unoccupiedPosition.left == $scope.game.characters[c].left) {
+        occupied = true;
+      }
+    }
+    return occupied;
+  };
+
+  var occupiedByHazard = function (unoccupiedPosition) {
+    var occupied = false;
+    //loop through enemies
+    for(var h in $scope.game.hazards) {
+      if(unoccupiedPosition.top == $scope.game.hazards[h].top && unoccupiedPosition.left == $scope.game.hazards[h].left) {
+        occupied = true;
+      }
+    }
+    return occupied;
   }
 
   var findUnoccupiedPosition = function () {
@@ -202,7 +228,7 @@ myApp.controller('mainController', function($scope) {
       enemy.damageTaken = 0;
       enemy.damage = 3;
       enemy.speed = 2;
-      enemy.drops = "2 gel";
+      enemy.drops = "2 gel ";
       $scope.game.enemies.push(enemy);
     }
   };
@@ -227,6 +253,7 @@ myApp.controller('mainController', function($scope) {
       turn.name = $scope.game.enemies[e].name;
       turn.initiative = $scope.game.enemies[e].initiative;
       turn.type = "enemy";
+      turn.isDead = false;
       turn.class = $scope.game.enemies[e].class;
       $scope.turnOrder.push(turn);
     }
@@ -293,7 +320,7 @@ myApp.controller('mainController', function($scope) {
       //check if team is dead
       for(t in $scope.turnOrder) {
         var teamDown = true;
-        if(!$scope.turnOrder[t].isDead) {
+        if($scope.turnOrder[t].isDead == false) {
           teamDown = false;
         }
       }
@@ -301,6 +328,71 @@ myApp.controller('mainController', function($scope) {
         gameOver();
       }
     }
+    $scope.doNextCombatRound(false);
+  };
+
+  $scope.travelToHereCombat = function(tile) {
+      var characterIndex = findCharacterIndex();
+      
+      var tileFound = findTile(tile);
+      if(tileFound) {
+        $scope.hasMoved = true;
+        var leftTarget = $scope.game.characters[characterIndex].left - 50;
+        var rightTarget = $scope.game.characters[characterIndex].left + 50;
+        var topTarget = $scope.game.characters[characterIndex].top - 50;
+        var bottomTarget = $scope.game.characters[characterIndex].top + 50;
+        //find valid moves
+        $scope.game.validMoves = [];
+        for(var i in $scope.game.combatTiles) {
+          var tileLeft = $scope.game.combatTiles[i].left;
+          var tileTop = $scope.game.combatTiles[i].top;
+          var position = {top: tileTop, left: tileLeft};
+          if( tileLeft >= leftTarget && tileLeft <= rightTarget && tileTop >= topTarget && tileTop <= bottomTarget ) {
+            if(!occupiedByHazard(position)  && !occupiedByEnemy(position)) {
+              $scope.game.validMoves.push($scope.game.combatTiles[i]);
+            }
+          }
+        }
+        //figure out which move is closer to the target Tile
+        $scope.game.validMoves.sort(function(a, b) {
+          var x1 = tile.left;
+          var y1 = tile.top;
+          var a1 = a.left;
+          var a2 = a.top;
+          var b1 = b.left;
+          var b2 = b.top;
+     	    var distanceA = Math.sqrt( (x1-a1)*(x1-a1) + (y1-a2)*(y1-a2) );
+          var distanceB = Math.sqrt( (x1-b1)*(x1-b1) + (y1-b2)*(y1-b2) );
+          return distanceA - distanceB;
+        });
+
+        //move there
+        function delayMove(characterIndex, tile) {
+          if ($scope.game.characters[characterIndex].left == $scope.game.validMoves[0].left && $scope.game.characters[characterIndex].top == $scope.game.validMoves[0].top) {
+            $scope.game.characters[characterIndex].movesTaken++;
+            if($scope.game.characters[characterIndex].movesTaken < $scope.game.characters[characterIndex].speed && $scope.game.characters[characterIndex].left !== tile.left && $scope.game.characters[characterIndex].top !== tile.top) {
+              $scope.travelToHereCombat(tile);
+            } else {
+              clearCombatTiles();
+            }
+          } else {
+          if($scope.game.characters[characterIndex].left > $scope.game.validMoves[0].left) {
+            $scope.game.characters[characterIndex].left--;
+          }
+          if($scope.game.characters[characterIndex].left < $scope.game.validMoves[0].left) {
+            $scope.game.characters[characterIndex].left++;
+          }
+          if($scope.game.characters[characterIndex].top > $scope.game.validMoves[0].top) {
+            $scope.game.characters[characterIndex].top--;
+          }
+          if($scope.game.characters[characterIndex].top < $scope.game.validMoves[0].top) {
+            $scope.game.characters[characterIndex].top++;
+          }
+          $timeout(function() { delayMove(characterIndex, tile); }, 20);
+        }
+      };
+      $timeout(function() { delayMove(characterIndex, tile); }, 20);
+      }
   };
 
   var moveEnemy = function (targetCharacterIndex, activeEnemyIndex) {
@@ -316,7 +408,7 @@ myApp.controller('mainController', function($scope) {
       var tileTop = $scope.game.combatTiles[i].top;
       var position = {top: tileTop, left: tileLeft};
       if( tileLeft >= leftTarget && tileLeft <= rightTarget && tileTop >= topTarget && tileTop <= bottomTarget ) {
-        if(!$scope.game.combatTiles[i].class.includes("hazard")  && !occupiedByEnemy(position)) {
+        if(!occupiedByHazard(position)  && !occupiedByEnemy(position)) {
           $scope.game.validMoves.push($scope.game.combatTiles[i]);
         }
       }
@@ -334,13 +426,11 @@ myApp.controller('mainController', function($scope) {
       return distanceA - distanceB;
     });
     //move there
-    var timer = setInterval(function () {
+    function delayMove(activeEnemyIndex) {
       //ToDo Fix Animations
-      if ($scope.game.enemies[activeEnemyIndex].left == $scope.game.validMoves[0].left && 
-      $scope.game.enemies[activeEnemyIndex].top == $scope.game.validMoves[0].top) {
+      if ($scope.game.enemies[activeEnemyIndex].left == $scope.game.validMoves[0].left && $scope.game.enemies[activeEnemyIndex].top == $scope.game.validMoves[0].top) {
         $scope.game.enemies[activeEnemyIndex].movesTaken++;
         console.log("Enemy has moved.");
-        clearInterval(timer);
         doEnemyTurn();
       } else {
         if($scope.game.enemies[activeEnemyIndex].left > $scope.game.validMoves[0].left) {
@@ -355,8 +445,10 @@ myApp.controller('mainController', function($scope) {
         if($scope.game.enemies[activeEnemyIndex].top < $scope.game.validMoves[0].top) {
           $scope.game.enemies[activeEnemyIndex].top++;
         }
+        $timeout(function() { delayMove(activeEnemyIndex); }, 20);
       }
-    }, 5);
+    };
+    $timeout(function() { delayMove(activeEnemyIndex); }, 20);
   };
 
   var doEnemyTurn = function () {
@@ -379,6 +471,8 @@ myApp.controller('mainController', function($scope) {
     } else {
       if($scope.game.enemies[activeEnemyIndex].movesTaken < $scope.game.enemies[activeEnemyIndex].speed) {
         moveEnemy(targetCharacterIndex, activeEnemyIndex);
+      } else {
+        $scope.doNextCombatRound(false);
       }
     }
   };
@@ -400,11 +494,11 @@ myApp.controller('mainController', function($scope) {
       for(e in $scope.game.enemies) {
         if($scope.activeTurn.name == $scope.game.enemies[e].name) {
           $scope.game.enemies[e].movesTaken = 0;
+          break;
         }
       }
       
       doEnemyTurn();
-      $scope.doNextCombatRound(false);
     } else {
       $scope.hasAttacked = false;
       $scope.hasMoved = false;
@@ -561,17 +655,22 @@ myApp.controller('mainController', function($scope) {
           activePlayer = $scope.game.characters[c];
         }
       }
-      var leftTarget = activePlayer.left - 50;
-      var rightTarget = activePlayer.left + 50;
-      var topTarget = activePlayer.top - 50;
-      var bottomTarget = activePlayer.top + 50;
+      var multiplier = 1;
+      if (combatOption == 'move') {
+        multiplier = $scope.game.characters[findCharacterIndex()].speed;
+      }
+      var leftTarget = activePlayer.left - (50 * multiplier);
+      var rightTarget = activePlayer.left + (50 * multiplier);
+      var topTarget = activePlayer.top - (50 * multiplier);
+      var bottomTarget = activePlayer.top + (50 * multiplier);
       //highlight tiles to click
       $scope.game.tilesToHighlight = [];
       for(var i in $scope.game.combatTiles) {
         var tileLeft = $scope.game.combatTiles[i].left;
         var tileTop = $scope.game.combatTiles[i].top;
+        var position = {left: tileLeft, top: tileTop};
         if( tileLeft >= leftTarget && tileLeft <= rightTarget && tileTop >= topTarget && tileTop <= bottomTarget ) {
-          if(!$scope.game.combatTiles[i].class.includes("hazard")) {
+          if(!occupiedByHazard(position)  && !occupiedByCharacter(position)) {
             $scope.game.combatTiles[i].class += highlightTile;
             $scope.game.tilesToHighlight.push($scope.game.combatTiles[i]);
           }
@@ -591,7 +690,7 @@ myApp.controller('mainController', function($scope) {
         $scope.game.team.top = tile.top;
         $scope.game.team.location = tile.class.replace(" highlightTile", "");
         
-        for(var i in $scope.game.tilesToHighlight) {
+        for(var i in $scope.game.tiles) {
             $scope.game.tiles[i].class = $scope.game.tiles[i].class.replace(" highlightTile", "");
         }
         $scope.game.tilesToHighlight = [];
@@ -628,8 +727,27 @@ myApp.controller('mainController', function($scope) {
     return enemyIndex;
   };
 
+  var findItemByName = function (itemName) {
+    for(i in $scope.droppableItems) {
+      if($scope.droppableItems[i].name == itemName) {
+        return $scope.droppableItems[i];
+      }
+    }
+  };
+
   var endCombat = function() {
     $scope.activeView = 'showGame';
+  };
+
+  var dropLoot = function(enemyIndex) {
+    var drops = $scope.game.enemies[enemyIndex].drops.split(" ");
+    var numItem = drops[0];
+    var itemName = drops[1];
+    for(var i = 0; i < numItem; i++) {
+      var item = findItemByName(itemName);
+      $scope.game.inventory.push(item);
+    }
+    $scope.combatInfo += "It drops " + numItem + " " + itemName + ". ";
   };
 
   var killEnemy = function(enemyIndex) {
@@ -640,6 +758,7 @@ myApp.controller('mainController', function($scope) {
         turnToRemove = t;
       }
     }
+    dropLoot(enemyIndex);
     $scope.turnOrder.splice(turnToRemove, 1);
     $scope.game.enemies.splice(enemyIndex, 1);
     if($scope.game.enemies.length < 1) {
@@ -689,21 +808,6 @@ myApp.controller('mainController', function($scope) {
     } else {
       $scope.travelToHereCombat(tile);
     }
-  };
-
-  $scope.travelToHereCombat = function(tile) {
-      var characterIndex = findCharacterIndex();
-      
-      var tileFound = findTile(tile);
-      if(tileFound) {
-        $scope.game.characters[characterIndex].movesTaken++;
-        $scope.game.characters[characterIndex].left = tile.left;
-        $scope.game.characters[characterIndex].top = tile.top;
-        if($scope.game.characters[characterIndex].speed <= $scope.game.characters[characterIndex].movesTaken) {
-          $scope.hasMoved = true;
-        }
-        clearCombatTiles();
-      }
   };
 
   var createNewMap = function() {
