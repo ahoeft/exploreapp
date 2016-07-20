@@ -28,7 +28,8 @@ myApp.controller('mainController', function($scope, $timeout) {
   ];
 
   $scope.droppableItems = [
-    { name: "gel", img: "./images/gel.png", type:"material", description: "A sticky crafting material." }
+    { name: "gel", img: "./images/gel.png", type:"material", description: "A sticky crafting material." },
+    { name: "carapace", img: "./images/carapace.png", type:"material", description: "The hard exoskeleton of some beast." }
   ];
   
 
@@ -209,27 +210,53 @@ myApp.controller('mainController', function($scope, $timeout) {
     }
   };
 
+  var fetchRandomEnemy = function () {
+    var enemy = {};
+    var randomPercent = Math.round(Math.random() * 99) + 1;
+    if($scope.game.team.location == "beach") {
+      if(randomPercent < 45) {
+        enemy = { 
+          name: "Blue Jelly",
+          class: "gel",
+          health: 4,
+          mana: 1,
+          str: 2,
+          dex: 2,
+          int: 2,
+          damage: 3,
+          speed: 2,
+          xp: 3,
+          drops: "2 gel " 
+        };
+      } else {
+        enemy = {
+          name: "Giant Crab",
+          class: "crab",
+          health: 6,
+          mana: 1,
+          str: 2,
+          dex: 2,
+          int: 2,
+          damage: 2,
+          speed: 2,
+          xp: 3,
+          drops: "2 carapace "
+        };
+      }
+    }
+    return enemy;
+  }
+
   var drawEnemies = function () {
-    //ToDo make this a random number of enemies and random types of enemies based on game.team.location.
     $scope.game.enemies = [];
     var numEnemies = Math.round(Math.random() * 4) + 2;
     for(var n = 0; n < numEnemies; n++) {
-      var enemy = {};
-      enemy.class = "gel";
+      var enemy = fetchRandomEnemy();
       //set position to off the board
-      enemy.name = "Blue Jelly" + " " + (n + 1);
+      enemy.name += " " + (n + 1);
       enemy.top = 50;
       enemy.left = 200;
-      enemy.health = 2;
-      enemy.mana = 1;
-      enemy.str = 2;
-      enemy.dex = 2;
-      enemy.int = 2;
       enemy.damageTaken = 0;
-      enemy.damage = 3;
-      enemy.speed = 2;
-      enemy.drops = "2 gel ";
-      enemy.xp = 3;
       $scope.game.enemies.push(enemy);
     }
   };
@@ -350,7 +377,7 @@ myApp.controller('mainController', function($scope, $timeout) {
           var tileTop = $scope.game.combatTiles[i].top;
           var position = {top: tileTop, left: tileLeft};
           if( tileLeft >= leftTarget && tileLeft <= rightTarget && tileTop >= topTarget && tileTop <= bottomTarget ) {
-            if(!occupiedByHazard(position)  && !occupiedByEnemy(position)) {
+            if(!occupiedByHazard(position)  && !occupiedByCharacter(position) && !occupiedByEnemy(position)) {
               $scope.game.validMoves.push($scope.game.combatTiles[i]);
             }
           }
@@ -442,7 +469,6 @@ myApp.controller('mainController', function($scope, $timeout) {
     });
     //move there
     function delayMove(activeEnemyIndex) {
-      //ToDo Fix Animations
       if ($scope.game.enemies[activeEnemyIndex].left == $scope.game.validMoves[0].left && $scope.game.enemies[activeEnemyIndex].top == $scope.game.validMoves[0].top) {
         $scope.game.enemies[activeEnemyIndex].movesTaken++;
         console.log("Enemy has moved.");

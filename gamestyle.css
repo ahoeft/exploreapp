@@ -135,6 +135,11 @@ tr:hover {
 .gel {
     background-image: url("./images/gel.png");
 }
+
+.crab {
+    background-image: url("./images/crab.png");
+}
+
 .btn {
     padding: 8px;
     margin: 10px;
