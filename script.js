@@ -21,11 +21,8 @@ myApp.controller('mainController', function($scope, $timeout) {
     { name: "glass", requiredItems: "2 sand ", itemType: "material", img: "./images/glass.png", description: "A brittle crafting material.  It requires a furnace." }, 
     { name: "sandstone", requiredItems: "2 sand ", itemType: "material", img: "./images/sandstone.png", description: "A useful but hard crafting material." },
     { name: "sandstone hut", requiredItems: "5 sandstone ", itemType: "structure", img: "./images/sandstonehut.png", description: "This structure will protect you from monsters at night!" },
-    { name: "shell dagger", requiredItems: "2 shell ", itemType: "weapon", img: "./images/shelldagger.png", description: "This tiny shell dagger adds 1 damage.", damage: 2}
-  ];
-
-  $scope.enemyDB = [
-    { name: "Blue Jelly", health: 2, mana: 1, str: 1, dex: 1, int: 1, damage: 3, damageTaken: 0, speed: 2, drops: "2 gel ", area: "beach"}
+    { name: "shell dagger", requiredItems: "2 shell ", itemType: "weapon", img: "./images/shelldagger.png", description: "This tiny shell dagger adds 1 damage.", damage: 2},
+    { name: "beatin' stick", requiredItems: "1 driftwood ; 1 carapace ", itemType: "weapon", img: "./images/driftwood.png", description: "A thick wooden club for smashing enemies.", damage: 3}
   ];
 
   $scope.droppableItems = [
@@ -601,19 +598,23 @@ myApp.controller('mainController', function($scope, $timeout) {
   
   var verifyMaterialInInventory = function (requiredItems) {
     var addMe = false;
-    var itemNamesAndNumbers = requiredItems.split(" ");
-    var itemNumber = itemNamesAndNumbers[0];
-    var itemName = itemNamesAndNumbers[1];
-    var foundOne = 0;
-    for(var i in $scope.game.inventory) {
-      if(itemName == $scope.game.inventory[i].name) {
-        foundOne++;
-        if(foundOne == itemNumber) {
-          addMe = true;
-          break;
+    var eachItem = requiredItems.split("; ");
+    for(var k in eachItem) {
+      var itemNamesAndNumbers = eachItem[k].split(" ");
+      var itemNumber = itemNamesAndNumbers[0];
+      var itemName = itemNamesAndNumbers[1];
+      var foundOne = 0;
+      for(var i in $scope.game.inventory) {
+        if(itemName == $scope.game.inventory[i].name) {
+          foundOne++;
+          if(foundOne == itemNumber) {
+            addMe = true;
+            break;
+          }
         }
       }
     }
+    
     return addMe;
   };
 
@@ -629,17 +630,21 @@ myApp.controller('mainController', function($scope, $timeout) {
 
   $scope.craftMe = function (recipe) { 
     var item = { name: recipe.name, img: recipe.img, type: recipe.itemType, description: recipe.description };
-    var itemNamesAndNumbers = recipe.requiredItems.split(" ");
-    var itemNumber = itemNamesAndNumbers[0];
-    var itemName = itemNamesAndNumbers[1];
-    for(var i = 0; i < itemNumber; i++) {
-      for(var j in $scope.game.inventory) {
-        if(itemName == $scope.game.inventory[j].name) {
-          $scope.game.inventory.splice(j, 1);
-          break;
+    var requiredItems = recipe.requiredItems.split("; ");
+    for(var ri in requiredItems) {
+      var itemNamesAndNumbers = requiredItems[ri].split(" ");
+      var itemNumber = itemNamesAndNumbers[0];
+      var itemName = itemNamesAndNumbers[1];
+      for(var i = 0; i < itemNumber; i++) {
+        for(var j in $scope.game.inventory) {
+          if(itemName == $scope.game.inventory[j].name) {
+            $scope.game.inventory.splice(j, 1);
+            break;
+          }
         }
       }
     }
+    
     $scope.game.inventory.push(item);
     $scope.game.availableRecipes = [];
   };
@@ -805,7 +810,7 @@ myApp.controller('mainController', function($scope, $timeout) {
   var giveExperience = function (enemyIndex, characterIndex) {
     var experienceGained = $scope.game.enemies[enemyIndex].xp - $scope.game.characters[characterIndex].level;
     if(experienceGained > 0) {
-      $scope.combatInfo += $scope.game.characters[characterIndex].name + " gains " + experienceGained + " experience. ";
+      $scope.combatInfo = $scope.game.characters[characterIndex].name + " gains " + experienceGained + " experience. ";
       $scope.game.characters[characterIndex].xp += experienceGained;
       if($scope.game.characters[characterIndex].xp > 9) {
         levelUp(characterIndex);
@@ -833,7 +838,7 @@ myApp.controller('mainController', function($scope, $timeout) {
   var damageEnemy = function (enemyIndex) {
     var characterIndex = findCharacterIndex();
     var damageMax = 1;
-    if($scope.game.characters[characterIndex].weapon) {
+    if($scope.game.characters[characterIndex].weapon && $scope.game.characters[characterIndex].weapon.damage > 0) {
       damageMax = $scope.game.characters[characterIndex].weapon.damage;
     }
     var damageDelt = damageMax + Math.floor($scope.game.characters[characterIndex].str / 2);
@@ -1020,8 +1025,56 @@ myApp.controller('mainController', function($scope, $timeout) {
       $scope.game.characters[$scope.characterToEquip].weaponEquipped = true;
       $scope.game.inventory.splice(item.inventoryIndex, 1);
     }
+    if("armor" == item.type) {
+      $scope.game.characters[$scope.characterToEquip].armor = item;
+      $scope.game.characters[$scope.characterToEquip].armorEquipped = true;
+      $scope.game.inventory.splice(item.inventoryIndex, 1);
+    }
+    if("boots" == item.type) {
+      $scope.game.characters[$scope.characterToEquip].boots = item;
+      $scope.game.characters[$scope.characterToEquip].bootsEquipped = true;
+      $scope.game.inventory.splice(item.inventoryIndex, 1);
+    }
     $scope.game.equipables = [];
     $scope.showEquipables = false;
+  };
+
+  $scope.equipArmor = function (characterIndex) {
+    $scope.game.equipables = [];
+    for(i in $scope.game.inventory) {
+      if("armor" == $scope.game.inventory[i].type) {
+        var item = $scope.game.inventory[i];
+        item.inventoryIndex = i;
+        $scope.game.equipables.push(item);
+      }
+    }
+    $scope.showEquipables = true;
+    $scope.characterToEquip = characterIndex;
+  };
+
+  $scope.unequipArmor = function (characterIndex) {
+    $scope.game.inventory.push($scope.game.characters[characterIndex].armor);
+    $scope.game.characters[characterIndex].armor = {};
+    $scope.game.characters[characterIndex].armorEquipped = false;    
+  };
+
+  $scope.equipBoots = function (characterIndex) {
+    $scope.game.equipables = [];
+    for(i in $scope.game.inventory) {
+      if("boots" == $scope.game.inventory[i].type) {
+        var item = $scope.game.inventory[i];
+        item.inventoryIndex = i;
+        $scope.game.equipables.push(item);
+      }
+    }
+    $scope.showEquipables = true;
+    $scope.characterToEquip = characterIndex;
+  };
+
+  $scope.unequipBoots = function (characterIndex) {
+    $scope.game.inventory.push($scope.game.characters[characterIndex].boots);
+    $scope.game.characters[characterIndex].boots = {};
+    $scope.game.characters[characterIndex].bootsEquipped = false;
   };
 
   $scope.equipWeapon = function (characterIndex) {
@@ -1035,7 +1088,7 @@ myApp.controller('mainController', function($scope, $timeout) {
     }
     $scope.showEquipables = true;
     $scope.characterToEquip = characterIndex;
-  }
+  };
 
   $scope.unequipWeapon = function(characterIndex){
     $scope.game.inventory.push($scope.game.characters[characterIndex].weapon);
