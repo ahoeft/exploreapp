@@ -238,3 +238,6 @@ tr:hover {
     background-image: url("./images/weaponslot.png");
 }
 
+.dead {
+    background-image: url("./images/dead.png");
+}

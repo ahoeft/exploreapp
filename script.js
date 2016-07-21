@@ -22,7 +22,9 @@ myApp.controller('mainController', function($scope, $timeout) {
     { name: "sandstone", requiredItems: "2 sand ", itemType: "material", img: "./images/sandstone.png", description: "A useful but hard crafting material." },
     { name: "sandstone hut", requiredItems: "5 sandstone ", itemType: "structure", img: "./images/sandstonehut.png", description: "This structure will protect you from monsters at night!" },
     { name: "shell dagger", requiredItems: "1 driftwood & 1 shell ", itemType: "weapon", img: "./images/shelldagger.png", description: "This tiny shell dagger adds 1 damage.", damage: 2},
-    { name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", itemType: "weapon", img: "./images/driftwood.png", description: "A thick wooden club for smashing enemies.", damage: 3}
+    { name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", itemType: "weapon", img: "./images/driftwood.png", description: "A thick wooden club for smashing enemies.", damage: 3},
+    { name: "shell armor", requiredItems: "2 gel & 2 shell ", itemType: "armor", img: "./images/shellarmor.png", description: "This lightweight armor helps new islanders survive.", bonusHealth: 2, speedPenalty: 0, manaPenalty: 0},
+    { name: "carapace armor", requiredItems: "2 gel & 2 carapace ", itemType: "armor", img: "./images/carapacearmor.png", description: "This heavy armor protects its wearer at the cost of speed.", bonusHealth: 4, speedPenalty: 1, manaPenalty: 0}
   ];
 
   $scope.droppableItems = [
@@ -42,10 +44,10 @@ myApp.controller('mainController', function($scope, $timeout) {
 
   var createCharacters = function() {
     $scope.game.characters = [
-      { name: "Spike", class: "avatar1", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3, level: 1, xp: 0, weaponEquipped: false, armorEquipped: false, bootsEquipped: false},
-      { name: "Albert", class: "avatar2", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3, level: 1, xp: 0, weaponEquipped: false, armorEquipped: false, bootsEquipped: false},
-      { name: "Sandra", class: "avatar3", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3, level: 1, xp: 0, weaponEquipped: false, armorEquipped: false, bootsEquipped: false},
-      { name: "Coco", class: "avatar4", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3, level: 1, xp: 0, weaponEquipped: false, armorEquipped: false, bootsEquipped: false}
+      { name: "Spike", class: "avatar1", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3, level: 1, xp: 0, weaponEquipped: false, armorEquipped: false, bootsEquipped: false, armor: { bonusHealth: 0, speedPenalty: 0, manaPenalty: 0 } },
+      { name: "Albert", class: "avatar2", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3, level: 1, xp: 0, weaponEquipped: false, armorEquipped: false, bootsEquipped: false, armor: { bonusHealth: 0, speedPenalty: 0, manaPenalty: 0 } },
+      { name: "Sandra", class: "avatar3", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3, level: 1, xp: 0, weaponEquipped: false, armorEquipped: false, bootsEquipped: false, armor: { bonusHealth: 0, speedPenalty: 0, manaPenalty: 0 } },
+      { name: "Coco", class: "avatar4", health: 5, str: 1, dex: 1, int: 1, mana: 1, speed: 3, pointsLeft: 3, level: 1, xp: 0, weaponEquipped: false, armorEquipped: false, bootsEquipped: false, armor: { bonusHealth: 0, speedPenalty: 0, manaPenalty: 0 } }
     ];
   };
 
@@ -963,7 +965,10 @@ myApp.controller('mainController', function($scope, $timeout) {
   };
   
   var calculateHealth = function (index) {
-    $scope.game.characters[index].health = 3 + ($scope.game.characters[index].level * 2) + Math.floor($scope.game.characters[index].str / 2);
+    var baseHealth = 3 + ($scope.game.characters[index].level * 2);
+    var healthFromStr = Math.floor($scope.game.characters[index].str / 2);
+    var healthFromArmor = $scope.game.characters[index].armor.bonusHealth;
+    $scope.game.characters[index].health =  baseHealth + healthFromStr + healthFromArmor;
   };
 
   var calculateMana = function (index) {
@@ -1042,6 +1047,7 @@ myApp.controller('mainController', function($scope, $timeout) {
       $scope.game.characters[$scope.characterToEquip].armor = item;
       $scope.game.characters[$scope.characterToEquip].armorEquipped = true;
       $scope.game.inventory.splice(item.inventoryIndex, 1);
+      calculateHealth($scope.characterToEquip);
     }
     if("boots" == item.type) {
       $scope.game.characters[$scope.characterToEquip].boots = item;
@@ -1067,7 +1073,7 @@ myApp.controller('mainController', function($scope, $timeout) {
 
   $scope.unequipArmor = function (characterIndex) {
     $scope.game.inventory.push($scope.game.characters[characterIndex].armor);
-    $scope.game.characters[characterIndex].armor = {};
+    $scope.game.characters[characterIndex].armor = { bonusHealth: 0, speedPenalty: 0, manaPenalty: 0 };
     $scope.game.characters[characterIndex].armorEquipped = false;    
   };
 
