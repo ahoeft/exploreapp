@@ -21,8 +21,8 @@ myApp.controller('mainController', function($scope, $timeout) {
     { name: "glass", requiredItems: "2 sand ", itemType: "material", img: "./images/glass.png", description: "A brittle crafting material.  It requires a furnace." }, 
     { name: "sandstone", requiredItems: "2 sand ", itemType: "material", img: "./images/sandstone.png", description: "A useful but hard crafting material." },
     { name: "sandstone hut", requiredItems: "5 sandstone ", itemType: "structure", img: "./images/sandstonehut.png", description: "This structure will protect you from monsters at night!" },
-    { name: "shell dagger", requiredItems: "2 shell ", itemType: "weapon", img: "./images/shelldagger.png", description: "This tiny shell dagger adds 1 damage.", damage: 2},
-    { name: "beatin' stick", requiredItems: "1 driftwood ; 1 carapace ", itemType: "weapon", img: "./images/driftwood.png", description: "A thick wooden club for smashing enemies.", damage: 3}
+    { name: "shell dagger", requiredItems: "1 driftwood & 1 shell ", itemType: "weapon", img: "./images/shelldagger.png", description: "This tiny shell dagger adds 1 damage.", damage: 2},
+    { name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", itemType: "weapon", img: "./images/driftwood.png", description: "A thick wooden club for smashing enemies.", damage: 3}
   ];
 
   $scope.droppableItems = [
@@ -598,8 +598,10 @@ myApp.controller('mainController', function($scope, $timeout) {
   
   var verifyMaterialInInventory = function (requiredItems) {
     var addMe = false;
-    var eachItem = requiredItems.split("; ");
+    var eachItem = requiredItems.split("& ");
+    var itemsFound = 0;
     for(var k in eachItem) {
+      var foundEnoughForItem = false;
       var itemNamesAndNumbers = eachItem[k].split(" ");
       var itemNumber = itemNamesAndNumbers[0];
       var itemName = itemNamesAndNumbers[1];
@@ -608,17 +610,24 @@ myApp.controller('mainController', function($scope, $timeout) {
         if(itemName == $scope.game.inventory[i].name) {
           foundOne++;
           if(foundOne == itemNumber) {
-            addMe = true;
+            foundEnoughForItem = true;
             break;
           }
         }
       }
+      if(foundEnoughForItem) {
+        itemsFound++;
+      }
+    }
+    if(itemsFound == eachItem.length) {
+      addMe = true;
     }
     
     return addMe;
   };
 
   $scope.selectItemFromInventory = function(item) {
+    $scope.game.availableRecipes = [];
     $scope.showEquipables = false;
     for(var i in $scope.recipeDB) {
       if($scope.recipeDB[i].requiredItems.includes(" " + item.name + " ")) {
@@ -630,7 +639,7 @@ myApp.controller('mainController', function($scope, $timeout) {
 
   $scope.craftMe = function (recipe) { 
     var item = { name: recipe.name, img: recipe.img, type: recipe.itemType, description: recipe.description };
-    var requiredItems = recipe.requiredItems.split("; ");
+    var requiredItems = recipe.requiredItems.split("& ");
     for(var ri in requiredItems) {
       var itemNamesAndNumbers = requiredItems[ri].split(" ");
       var itemNumber = itemNamesAndNumbers[0];
@@ -784,6 +793,10 @@ myApp.controller('mainController', function($scope, $timeout) {
   };
 
   var endCombat = function() {
+    for(var i in $scope.game.characters) {
+      var charNum = i + 1;
+      $scope.game.characters[i].class = "avatar" + charNum;
+    }
     $scope.activeView = 'showGame';
   };
 
