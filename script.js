@@ -520,8 +520,8 @@ myApp.controller('mainController', function($scope, $timeout) {
 
   $scope.doNextCombatRound = function (startingRound) {
     clearCombatTiles();
-    if(!startingRound) {
-          if($scope.activeTurnIndex >= $scope.turnOrder.length - 1) {
+    if(startingRound == false) {
+          if($scope.activeTurnIndex == $scope.turnOrder.length - 1) {
             $scope.activeTurnIndex = 0;
           } else {
             $scope.activeTurnIndex++;
@@ -531,15 +531,18 @@ myApp.controller('mainController', function($scope, $timeout) {
 
     //Check if it is an enemies turn
     if($scope.activeTurn.type == "enemy") {
-      //clear enemy moves
-      for(e in $scope.game.enemies) {
-        if($scope.activeTurn.name == $scope.game.enemies[e].name) {
-          $scope.game.enemies[e].movesTaken = 0;
-          break;
-        }
-      }
-      
-      doEnemyTurn();
+      if($scope.activeTurn.isDead == false) {
+        //clear enemy moves
+        for(e in $scope.game.enemies) {
+          if($scope.activeTurn.name == $scope.game.enemies[e].name) {
+            $scope.game.enemies[e].movesTaken = 0;
+            break;
+          }
+        }      
+        doEnemyTurn();
+      } else {
+        $scope.doNextCombatRound(false);
+      }  
     } else {
       $scope.hasAttacked = false;
       $scope.hasMoved = false;
@@ -843,7 +846,7 @@ myApp.controller('mainController', function($scope, $timeout) {
     }
     dropLoot(enemyIndex);
     giveExperience(enemyIndex, findCharacterIndex());
-    $scope.turnOrder.splice(turnToRemove, 1);
+    $scope.turnOrder[turnToRemove].isDead = true;
     $scope.game.enemies.splice(enemyIndex, 1);
     if($scope.game.enemies.length < 1) {
       endCombat();
