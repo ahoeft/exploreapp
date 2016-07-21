@@ -1,8 +1,9 @@
 //declare myApp
 var myApp = angular.module('myApp', []);
 
-myApp.controller('mainController', function($scope, $timeout) {
+myApp.controller('mainController', function($scope, $timeout, $sce) {
 	//initialize game
+  $scope.combatInfo = $sce.trustAsHtml("Combat Begins! <br>");
   $scope.activeView = 'main';
   $scope.game = {};
   $scope.game.clock = "8am";
@@ -10,10 +11,6 @@ myApp.controller('mainController', function($scope, $timeout) {
   $scope.game.day = 0;
   $scope.game.turn = 1;
   $scope.game.inventory = [];
-  var item = { name: "sand", img: "./images/sand.png", type:"material" };
-  $scope.game.inventory.push(item);
-  $scope.game.inventory.push(item);
-  $scope.game.inventory.push(item);
   $scope.game.beastiary = [];
   $scope.game.availableRecipes = [];
   $scope.game.equipables = [];
@@ -24,7 +21,8 @@ myApp.controller('mainController', function($scope, $timeout) {
     { name: "shell dagger", requiredItems: "1 driftwood & 1 shell ", itemType: "weapon", img: "./images/shelldagger.png", description: "This tiny shell dagger adds 1 damage.", damage: 2},
     { name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", itemType: "weapon", img: "./images/driftwood.png", description: "A thick wooden club for smashing enemies.", damage: 3},
     { name: "shell armor", requiredItems: "2 gel & 2 shell ", itemType: "armor", img: "./images/shellarmor.png", description: "This lightweight armor helps new islanders survive.", bonusHealth: 2, speedPenalty: 0, manaPenalty: 0},
-    { name: "carapace armor", requiredItems: "2 gel & 2 carapace ", itemType: "armor", img: "./images/carapacearmor.png", description: "This heavy armor protects its wearer at the cost of speed.", bonusHealth: 4, speedPenalty: 1, manaPenalty: 0}
+    { name: "carapace armor", requiredItems: "2 gel & 2 carapace ", itemType: "armor", img: "./images/carapacearmor.png", description: "This heavy armor protects its wearer at the cost of speed.", bonusHealth: 4, speedPenalty: 1, manaPenalty: 0},
+    { name: "pearl", requiredItems: "5 clam ", itemType: "material", img: "./images/pearl.png", description: "A shiney pearl.  This is useful for crafting magical things."}
   ];
 
   $scope.droppableItems = [
@@ -32,6 +30,13 @@ myApp.controller('mainController', function($scope, $timeout) {
     { name: "carapace", img: "./images/carapace.png", type:"material", description: "The hard exoskeleton of some beast." }
   ];
   
+  var logCombatInfo = function (htmlString) {
+    $scope.combatInfo = $sce.trustAsHtml($scope.combatInfo + htmlString);
+  };
+
+  var clearCombatLog = function () {
+    $scope.combatInfo = $sce.trustAsHtml("Combat Begins! <br>");
+  };
 
   var createTeam = function() {
       //initialize team
@@ -92,9 +97,9 @@ myApp.controller('mainController', function($scope, $timeout) {
     } else if (randomPercent < 80) {
       item = { name: "shell", img: "./images/shell.png", type:"material", description: "A useful material for crafting." };
     } else if (randomPercent < 95) {
-      item = { name: "clam", img: "./images/clam.png", type:"material", description: "A useful material for crafting." };
-    } else {
       item = { name: "driftwood", img: "./images/driftwood.png", type:"material", description: "A useful material for crafting." };
+    } else {
+      item = { name: "clam", img: "./images/clam.png", type:"material", description: "A useful material for crafting." };
     }
     for(var i = 0; i < randomAmount; i++) {
       $scope.game.inventory.push(item);
@@ -334,12 +339,12 @@ myApp.controller('mainController', function($scope, $timeout) {
   var damageCharacter = function (targetCharacterIndex, activeEnemyIndex) {
     var damageDealt = Math.round(Math.random() * $scope.game.enemies[activeEnemyIndex].damage) + Math.floor($scope.game.enemies[activeEnemyIndex].str / 2);
     $scope.game.characters[targetCharacterIndex].damageTaken += damageDealt;
-    $scope.combatInfo += $scope.game.enemies[activeEnemyIndex].name + " deals " + damageDealt + " to " + $scope.game.characters[targetCharacterIndex].name + ". ";
+    logCombatInfo($scope.game.enemies[activeEnemyIndex].name + " deals " + damageDealt + " to " + $scope.game.characters[targetCharacterIndex].name + ". <br>");
     if($scope.game.characters[targetCharacterIndex].health <= $scope.game.characters[targetCharacterIndex].damageTaken) {
       //character is Dead
       for(t in $scope.turnOrder) {
         if($scope.game.characters[targetCharacterIndex].name == $scope.turnOrder[t].name) {
-          $scope.combatInfo += $scope.game.characters[targetCharacterIndex].name + " has died! ";
+          logCombatInfo($scope.game.characters[targetCharacterIndex].name + " has died! <br>");
           $scope.game.characters[targetCharacterIndex].class = "dead";
           $scope.turnOrder[t].isDead = true;
           break;
@@ -509,6 +514,10 @@ myApp.controller('mainController', function($scope, $timeout) {
     //if in range attack then end turn
     if(inRange) {
       damageCharacter(targetCharacterIndex, activeEnemyIndex);
+      if(Math.round(Math.random() * 99) + 1 > 95) {
+          logCombatInfo($scope.game.enemies[findEnemyIndex()].name + " <strong>Crits!</strong> <br>");
+          damageCharacter(targetCharacterIndex, activeEnemyIndex);
+        }
     } else {
       if($scope.game.enemies[activeEnemyIndex].movesTaken < $scope.game.enemies[activeEnemyIndex].speed) {
         moveEnemy(targetCharacterIndex, activeEnemyIndex);
@@ -573,7 +582,7 @@ myApp.controller('mainController', function($scope, $timeout) {
 
   var generateEncounter = function() {
     //starting encounter
-    $scope.combatInfo = "";
+    clearCombatLog();
     drawEncounterMap();
     drawEnemies();
     drawCharacters();
@@ -701,7 +710,6 @@ myApp.controller('mainController', function($scope, $timeout) {
   };
 
   $scope.highlightCombat = function(combatOption) {
-      $scope.combatInfo = "";
       clearCombatTiles();
       //figure out where the team is
       var highlightTile = " highlightMove";
@@ -813,11 +821,11 @@ myApp.controller('mainController', function($scope, $timeout) {
       var item = findItemByName(itemName);
       $scope.game.inventory.push(item);
     }
-    $scope.combatInfo += "It drops " + numItem + " " + itemName + ". ";
+    logCombatInfo("It drops " + numItem + " " + itemName + ". <br>");
   };
 
   var levelUp = function (characterIndex) {
-    $scope.combatInfo = $scope.game.characters[characterIndex].name + " levels up! ";
+    logCombatInfo($scope.game.characters[characterIndex].name + " levels up! <br>");
     $scope.game.characters[characterIndex].xp = 0;
     $scope.game.characters[characterIndex].level++;
     calculateHealth(characterIndex);
@@ -828,7 +836,7 @@ myApp.controller('mainController', function($scope, $timeout) {
   var giveExperience = function (enemyIndex, characterIndex) {
     var experienceGained = $scope.game.enemies[enemyIndex].xp - $scope.game.characters[characterIndex].level;
     if(experienceGained > 0) {
-      $scope.combatInfo = $scope.game.characters[characterIndex].name + " gains " + experienceGained + " experience. ";
+      logCombatInfo($scope.game.characters[characterIndex].name + " gains " + experienceGained + " experience. <br>");
       $scope.game.characters[characterIndex].xp += experienceGained;
       if($scope.game.characters[characterIndex].xp > 9) {
         levelUp(characterIndex);
@@ -861,10 +869,10 @@ myApp.controller('mainController', function($scope, $timeout) {
     }
     var damageDelt = damageMax + Math.floor($scope.game.characters[characterIndex].str / 2);
     $scope.game.enemies[enemyIndex].damageTaken += damageDelt;
-    $scope.combatInfo += $scope.game.characters[characterIndex].name + " deals " + damageDelt + " to " + $scope.game.enemies[enemyIndex].name + ". ";
+    logCombatInfo($scope.game.characters[characterIndex].name + " deals " + damageDelt + " to " + $scope.game.enemies[enemyIndex].name + ". <br>");
     //check if monster dies
     if($scope.game.enemies[enemyIndex].damageTaken >= $scope.game.enemies[enemyIndex].health) {
-      $scope.combatInfo += "And it dies! ";
+      logCombatInfo("And it dies! <br>");
       killEnemy(enemyIndex);
     }
     $scope.hasAttacked = true;
@@ -880,16 +888,16 @@ myApp.controller('mainController', function($scope, $timeout) {
       if(enemyIndex) {
         damageEnemy(enemyIndex);
         if(Math.round(Math.random() * 99) + 1 > 95) {
+          logCombatInfo($scope.game.characters[findCharacterIndex].name + " <strong>Crits!</strong> <br>");
           damageEnemy(enemyIndex);
-          $scope.combatInfo += "You Crit! ";
         }
       } else {
-        $scope.combatInfo = "No enemy in that square, try again!";
+        logCombatInfo("No enemy in that square, try again! <br>");
       }
       clearCombatTiles();
       $scope.attackMode = false;
     } else {
-      $scope.combatInfo = "Target not in range.";
+      logCombatInfo("Target not in range. <br>");
     }
   };
 
