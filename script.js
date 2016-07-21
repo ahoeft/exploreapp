@@ -807,7 +807,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   var endCombat = function() {
     for(var i in $scope.game.characters) {
-      var charNum = i + 1;
+      var charNum = parseInt(i) + 1;
       $scope.game.characters[i].class = "avatar" + charNum;
     }
     $scope.activeView = 'showGame';

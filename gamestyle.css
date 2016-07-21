@@ -241,3 +241,8 @@ tr:hover {
 .dead {
     background-image: url("./images/dead.png");
 }
+
+#combatLogContainer {
+    height: 150px;
+    overflow: auto;
+}
