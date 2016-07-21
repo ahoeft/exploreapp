@@ -100,6 +100,8 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     var randomPercent = Math.round(Math.random() * 99) + 1;
     var randomAmount = Math.round(Math.random() * 2) + 1;
     if(randomPercent < 40) {
+      item = undefined;
+    } else if (randomPercent < 60) {
       item = { name: "sand", img: "./images/sand.png", type:"material", description: "A useful material for crafting." };
     } else if (randomPercent < 80) {
       item = { name: "shell", img: "./images/shell.png", type:"material", description: "A useful material for crafting." };
@@ -108,10 +110,14 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     } else {
       item = { name: "clam", img: "./images/clam.png", type:"material", description: "A useful material for crafting." };
     }
-    for(var i = 0; i < randomAmount; i++) {
-      $scope.game.inventory.push(item);
-    }
-    logOverlandInfo("You successfully harvest " + randomAmount + " " + item.name + ". <br>");
+    if(item) {
+      for(var i = 0; i < randomAmount; i++) {
+        $scope.game.inventory.push(item);
+      }
+      logOverlandInfo("You successfully harvest " + randomAmount + " " + item.name + ". <br>");
+    } else {
+      logOverlandInfo("You search for hours but find nothing. <br>");
+    } 
   };
 
   var drawEncounterMap = function () {
@@ -602,7 +608,10 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   var checkForEncounter = function () {
     var randomPercent = Math.round(Math.random() * 99) + 1;
-    if(randomPercent > 50) {
+    if(randomPercent > 60 && $scope.game.night == "day") {
+      generateEncounter();
+    }
+    if(randomPercent > 20 && $scope.game.night == "night") {
       generateEncounter();
     }
   };

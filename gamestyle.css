@@ -209,6 +209,7 @@ tr:hover {
     top: 615px;
     left: 250px;
     background-color: lightgray;
+    overflow: scroll;
 }
 
 .armorSlot {
@@ -244,10 +245,4 @@ tr:hover {
 
 #combatLogContainer {
     height: 150px;
-    overflow: auto;
-}
-
-#overlandLog {
-    height: 150px;
-    overflow: auto;
 }
