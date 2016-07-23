@@ -37,6 +37,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   
   var logCombatInfo = function (htmlString) {
     $scope.combatInfo = $sce.trustAsHtml($scope.combatInfo + htmlString);
+    scrollToBottom();
   };
 
   var clearCombatLog = function () {
@@ -232,21 +233,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     var enemy = {};
     var randomPercent = Math.round(Math.random() * 99) + 1;
     if($scope.game.team.location == "beach") {
-      if(randomPercent < 45) {
-        enemy = { 
-          name: "Blue Jelly",
-          class: "gel",
-          health: 4,
-          mana: 1,
-          str: 2,
-          dex: 2,
-          int: 2,
-          damage: 3,
-          speed: 2,
-          xp: 3,
-          drops: "2 gel " 
-        };
-      } else {
+      if(randomPercent < 5) {
         enemy = {
           name: "Giant Crab",
           class: "crab",
@@ -258,7 +245,38 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
           damage: 2,
           speed: 2,
           xp: 3,
-          drops: "2 carapace "
+          drops: "1 carapace ",
+          range: 1
+        };
+      } else if(randomPercent < 10) {
+        enemy = { 
+          name: "Blue Jelly",
+          class: "gel",
+          health: 4,
+          mana: 1,
+          str: 2,
+          dex: 2,
+          int: 2,
+          damage: 3,
+          speed: 2,
+          xp: 3,
+          drops: "1 gel ",
+          range: 1 
+        };
+      } else {
+        enemy = { 
+          name: "Baspica",
+          class: "baspica",
+          health: 4,
+          mana: 1,
+          str: 2,
+          dex: 2,
+          int: 2,
+          damage: 3,
+          speed: 0,
+          xp: 4,
+          drops: "1 pearl ",
+          range: 3 
         };
       }
     }
@@ -333,10 +351,11 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   var checkRange = function (targetCharacterIndex, activeEnemyIndex) {
     var inRange = false;
-    var leftTarget = $scope.game.characters[targetCharacterIndex].left - 50;
-    var rightTarget = $scope.game.characters[targetCharacterIndex].left + 50;
-    var topTarget = $scope.game.characters[targetCharacterIndex].top - 50;
-    var bottomTarget = $scope.game.characters[targetCharacterIndex].top + 50;
+    var enemyRange = $scope.game.enemies[activeEnemyIndex].range;
+    var leftTarget = $scope.game.characters[targetCharacterIndex].left - (50 * enemyRange);
+    var rightTarget = $scope.game.characters[targetCharacterIndex].left + (50 * enemyRange);
+    var topTarget = $scope.game.characters[targetCharacterIndex].top - (50 * enemyRange);
+    var bottomTarget = $scope.game.characters[targetCharacterIndex].top + (50 * enemyRange);
     var tileLeft = $scope.game.enemies[activeEnemyIndex].left;
     var tileTop = $scope.game.enemies[activeEnemyIndex].top;
     if (tileLeft >= leftTarget && tileLeft <= rightTarget && tileTop >= topTarget && tileTop <= bottomTarget) {
@@ -350,7 +369,14 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   };
 
   var damageCharacter = function (targetCharacterIndex, activeEnemyIndex) {
-    var damageDealt = Math.round(Math.random() * $scope.game.enemies[activeEnemyIndex].damage) + Math.floor($scope.game.enemies[activeEnemyIndex].str / 2);
+    var baseDamage = Math.round(Math.random() * $scope.game.enemies[activeEnemyIndex].damage);
+    var attributeDamage = 0;
+    if($scope.game.enemies[activeEnemyIndex].range > 1) {
+      attributeDamage = Math.floor($scope.game.enemies[activeEnemyIndex].dex / 2);
+    } else {
+      attributeDamage = Math.floor($scope.game.enemies[activeEnemyIndex].str / 2);
+    }
+    var damageDealt =  + baseDamage + attributeDamage;
     $scope.game.characters[targetCharacterIndex].damageTaken += damageDealt;
     logCombatInfo("<span style='color: red;'>" +$scope.game.enemies[activeEnemyIndex].name + "</span> deals " + damageDealt + " to " + $scope.game.characters[targetCharacterIndex].name + ". <br>");
     if($scope.game.characters[targetCharacterIndex].health <= $scope.game.characters[targetCharacterIndex].damageTaken) {
@@ -382,7 +408,6 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       
       var tileFound = findTile(tile);
       if(tileFound) {
-        console.log("tile has been found");
         $scope.hasMoved = true;
         var leftTarget = $scope.game.characters[characterIndex].left - 50;
         var rightTarget = $scope.game.characters[characterIndex].left + 50;
@@ -419,20 +444,12 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
             $scope.game.characters[characterIndex].movesTaken++;
             //check to see if moves are left
             if($scope.game.characters[characterIndex].movesTaken < $scope.game.characters[characterIndex].speed) {
-              console.log("not there yet, try to move again");
               if($scope.game.characters[characterIndex].left == tile.left && $scope.game.characters[characterIndex].top == tile.top) {
-                console.log("tileLeft:" + tile.left);
-                console.log("characterLeft:" + $scope.game.characters[characterIndex].left);
-                console.log("tileLeft:" + tile.top);
-                console.log("characterTop:" + $scope.game.characters[characterIndex].top);
-                console.log("found it!  stop moving.");
                 clearCombatTiles();
               } else {
-                console.log("couldn't find it, try again");
                 travelToHereCombat(tile);
               }
             } else {
-              console.log("Outta moves.");
               clearCombatTiles();
             }
           } else {
@@ -455,6 +472,11 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       }
   };
 
+  var scrollToBottom = function () {
+    var objDiv = document.getElementById("c4");
+    objDiv.scrollTop = objDiv.scrollHeight;
+  };
+
   var moveEnemy = function (targetCharacterIndex, activeEnemyIndex) {
     //list of valid moves
     var leftTarget = $scope.game.enemies[activeEnemyIndex].left - 50;
@@ -468,7 +490,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       var tileTop = $scope.game.combatTiles[i].top;
       var position = {top: tileTop, left: tileLeft};
       if( tileLeft >= leftTarget && tileLeft <= rightTarget && tileTop >= topTarget && tileTop <= bottomTarget ) {
-        if(!occupiedByHazard(position)  && !occupiedByEnemy(position)) {
+        if(!occupiedByHazard(position)  && !occupiedByEnemy(position)  && !occupiedByCharacter(position)) {
           $scope.game.validMoves.push($scope.game.combatTiles[i]);
         }
       }
@@ -489,7 +511,6 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     function delayMove(activeEnemyIndex) {
       if ($scope.game.enemies[activeEnemyIndex].left == $scope.game.validMoves[0].left && $scope.game.enemies[activeEnemyIndex].top == $scope.game.validMoves[0].top) {
         $scope.game.enemies[activeEnemyIndex].movesTaken++;
-        console.log("Enemy has moved.");
         doEnemyTurn();
       } else {
         if($scope.game.enemies[activeEnemyIndex].left > $scope.game.validMoves[0].left) {
@@ -541,14 +562,16 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   };
 
   $scope.doNextCombatRound = function (startingRound) {
-    clearCombatTiles();
+    clearCombatTiles($scope.activeTurnIndex);
     if(startingRound == false) {
+          console.log($scope.activeTurnIndex);
           if($scope.activeTurnIndex == $scope.turnOrder.length - 1) {
             $scope.activeTurnIndex = 0;
           } else {
             $scope.activeTurnIndex++;
           }
           $scope.activeTurn = $scope.turnOrder[$scope.activeTurnIndex];
+          console.log($scope.activeTurn.name);
     }
 
     //Check if it is an enemies turn
@@ -668,7 +691,16 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   };
 
   $scope.craftMe = function (recipe) { 
-    var item = { name: recipe.name, img: recipe.img, type: recipe.itemType, description: recipe.description };
+    var item = { 
+      name: recipe.name, 
+      img: recipe.img, 
+      type: recipe.itemType, 
+      description: recipe.description, 
+      damage: recipe.damage,
+      bonusHealth: recipe.bonusHealth, 
+      speedPenalty: recipe.speedPenalty, 
+      manaPenalty: recipe.manaPenalty  
+    };
     var requiredItems = recipe.requiredItems.split("& ");
     for(var ri in requiredItems) {
       var itemNamesAndNumbers = requiredItems[ri].split(" ");
@@ -864,10 +896,9 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   };
 
   var killEnemy = function(enemyIndex) {
-    //ToDo figure out item drop system
     var turnToRemove = 0;
-    for(t in $scope.turOrder) {
-      if ($scope.turnOrder[t].name == $scope.game.enemies[t].name) {
+    for(var t in $scope.turnOrder) {
+      if ($scope.turnOrder[t].name == $scope.game.enemies[enemyIndex].name) {
         turnToRemove = t;
       }
     }
@@ -883,10 +914,16 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   var damageEnemy = function (enemyIndex) {
     var characterIndex = findCharacterIndex();
     var damageMax = 1;
+    var critMulti = 1;
+    var attributeDamage = Math.floor($scope.game.characters[characterIndex].str / 2);
+    if(Math.round(Math.random() * 99) + 1 > 95) {
+          logCombatInfo($scope.game.characters[characterIndex].name + " <em>Crits!</em> <br>");
+          critMulti = 2;
+        }
     if($scope.game.characters[characterIndex].weapon && $scope.game.characters[characterIndex].weapon.damage > 0) {
       damageMax = $scope.game.characters[characterIndex].weapon.damage;
     }
-    var damageDelt = damageMax + Math.floor($scope.game.characters[characterIndex].str / 2);
+    var damageDelt = (damageMax + attributeDamage) * critMulti;
     $scope.game.enemies[enemyIndex].damageTaken += damageDelt;
     logCombatInfo("<span style='color: blue;'>" + $scope.game.characters[characterIndex].name + "</span> deals " + damageDelt + " to " + $scope.game.enemies[enemyIndex].name + ". <br>");
     //check if monster dies
@@ -906,10 +943,6 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       //damage the enemy
       if(enemyIndex) {
         damageEnemy(enemyIndex);
-        if(Math.round(Math.random() * 99) + 1 > 95) {
-          logCombatInfo($scope.game.characters[findCharacterIndex].name + " <em>Crits!</em> <br>");
-          damageEnemy(enemyIndex);
-        }
       } else {
         logCombatInfo("No enemy in that square, try again! <br>");
       }
@@ -924,7 +957,6 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     if($scope.game.attackMode == true) {
       resolveAttack(tile);
     } else {
-      console.log("starting character movement");
       travelToHereCombat(tile);
     }
   };
