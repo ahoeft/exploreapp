@@ -235,7 +235,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     var enemy = {};
     var randomPercent = Math.round(Math.random() * 99) + 1;
     if($scope.game.team.location == "beach") {
-      if(randomPercent < 5) {
+      if(randomPercent < 33) {
         enemy = {
           name: "Giant Crab",
           class: "crab",
@@ -250,10 +250,10 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
           drops: "1 carapace ",
           range: 1
         };
-      } else if(randomPercent < 10) {
+      } else if(randomPercent < 66) {
         enemy = { 
           name: "Blue Jelly",
-          class: "gel",
+          class: "bluejelly",
           health: 4,
           mana: 1,
           str: 2,
@@ -288,7 +288,10 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   var drawEnemies = function () {
     $scope.game.enemies = [];
-    var numEnemies = Math.round(Math.random() * 4) + 2;
+    var numEnemies = Math.round(Math.random() * 4) + 1;
+    if($scope.game.night == "night") {
+      numEnemies = numEnemies * 2;
+    }
     for(var n = 0; n < numEnemies; n++) {
       var enemy = fetchRandomEnemy();
       //set position to off the board
@@ -434,8 +437,8 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         }
       }
       //check if team is dead
-      for(t in $scope.turnOrder) {
-        var teamDown = true;
+      var teamDown = true;
+      for(t in $scope.turnOrder) {        
         if($scope.turnOrder[t].isDead == false) {
           teamDown = false;
         }
@@ -650,7 +653,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   var drawHazards = function () {
       $scope.game.hazards = [];
 
-      var numHazards = Math.round(Math.random() * 4) + 2;
+      var numHazards = Math.round(Math.random() * 10) + 10;
       for(var i = 0; i < numHazards; i++) {
         var hazard = {};
         hazard.class = "rock hazard";
