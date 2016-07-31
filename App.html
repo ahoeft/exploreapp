@@ -265,6 +265,7 @@
 	</div>
 	<!--Combat View-->
 	<div ng-show="activeView == 'showCombatView'">
+		<div id="turnMenu"><span ng-repeat="turn in turnOrder" class="menuItem {{turn.class}}"></span></div>
 		<div class="c1">
 			<ul>
 				<li>Active Turn: {{activeTurn.name}}<span class="menuItem {{activeTurn.class}}"></span></li>
@@ -322,6 +323,8 @@
 			<div class="title">Combat Log</div>
 			<p id="combatLogContainer" ng-bind-html="combatInfo"></p>
 		</div>
+		<span ng-show="showProjectile" class="{{projectile.class}}"
+				style="top: {{projectile.top}}px; left: {{projectile.left}}px"></span>
 	</div>
 	<!--GAME OVER-->
 	<div ng-show="activeView == 'showGameOver'">Lol, you died.</div>

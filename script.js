@@ -15,6 +15,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   $scope.game.beastiary = [];
   $scope.game.availableRecipes = [];
   $scope.game.equipables = [];
+  $scope.projectile = {};
   $scope.recipeDB = [
     { name: "glass", requiredItems: "2 sand ", itemType: "material", img: "./images/glass.png", description: "A brittle crafting material.  It requires a furnace." }, 
     { name: "sandstone", requiredItems: "2 sand ", itemType: "material", img: "./images/sandstone.png", description: "A useful but hard crafting material." },
@@ -28,7 +29,8 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   $scope.droppableItems = [
     { name: "gel", img: "./images/gel.png", type:"material", description: "A sticky crafting material." },
-    { name: "carapace", img: "./images/carapace.png", type:"material", description: "The hard exoskeleton of some beast." }
+    { name: "carapace", img: "./images/carapace.png", type:"material", description: "The hard exoskeleton of some beast." },
+    { name: "pearl", img: "./images/pearl.png", type:"material", description: "A beautiful gem said to be the tear of an angel." }
   ];
 
   var logOverlandInfo = function (htmlString) {
@@ -276,7 +278,8 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
           speed: 0,
           xp: 4,
           drops: "1 pearl ",
-          range: 3 
+          range: 3,
+          projectile: "pearlshot" 
         };
       }
     }
@@ -349,6 +352,46 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   };
 
+  var animateEnemyRangedAttack = function (targetCharacterIndex, activeEnemyIndex) {
+    $scope.showProjectile = true;
+    $scope.projectile.class = $scope.game.enemies[activeEnemyIndex].projectile;
+    $scope.projectile.top = $scope.game.enemies[activeEnemyIndex].top;
+    $scope.projectile.left = $scope.game.enemies[activeEnemyIndex].left;
+    var targetTile = {};
+    targetTile.top = $scope.game.characters[targetCharacterIndex].top;
+    targetTile.left = $scope.game.characters[targetCharacterIndex].left;
+    function moveProjectile(targetTile, targetCharacterIndex, activeEnemyIndex) {
+      if(targetTile.top == $scope.projectile.top && targetTile.left == $scope.projectile.left) {
+        $scope.showProjectile = false;
+        damageCharacter(targetCharacterIndex, activeEnemyIndex);
+      } else {
+        if(targetTile.top < $scope.projectile.top && targetTile.left < $scope.projectile.left) {
+          $scope.projectile.top--;
+          $scope.projectile.left--;
+        } else if(targetTile.top < $scope.projectile.top && targetTile.left > $scope.projectile.left) {
+          $scope.projectile.top--;
+          $scope.projectile.left++;
+        } else if(targetTile.top > $scope.projectile.top && targetTile.left > $scope.projectile.left){
+          $scope.projectile.top++;
+          $scope.projectile.left++;
+        } else if(targetTile.top > $scope.projectile.top && targetTile.left < $scope.projectile.left) {
+          $scope.projectile.top++;
+          $scope.projectile.left--;
+        } else if(targetTile.top > $scope.projectile.top && targetTile.left == $scope.projectile.left) {
+          $scope.projectile.top++;
+        } else if(targetTile.top < $scope.projectile.top && targetTile.left == $scope.projectile.left) {
+          $scope.projectile.top--;
+        } else if(targetTile.top == $scope.projectile.top && targetTile.left < $scope.projectile.left) {
+          $scope.projectile.left--;
+        } else if(targetTile.top == $scope.projectile.top && targetTile.left > $scope.projectile.left) {
+          $scope.projectile.left++;
+        }
+        $timeout(function() { moveProjectile(targetTile, targetCharacterIndex, activeEnemyIndex); }, 4);
+      }
+    };
+    $timeout(function() { moveProjectile(targetTile, targetCharacterIndex, activeEnemyIndex); }, 4);
+  };
+
   var checkRange = function (targetCharacterIndex, activeEnemyIndex) {
     var inRange = false;
     var enemyRange = $scope.game.enemies[activeEnemyIndex].range;
@@ -361,6 +404,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     if (tileLeft >= leftTarget && tileLeft <= rightTarget && tileTop >= topTarget && tileTop <= bottomTarget) {
       inRange = true;
     }
+    
     return inRange;
   };
 
@@ -547,11 +591,11 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     var inRange = checkRange(targetCharacterIndex, activeEnemyIndex);
     //if in range attack then end turn
     if(inRange) {
-      damageCharacter(targetCharacterIndex, activeEnemyIndex);
-      if(Math.round(Math.random() * 99) + 1 > 95) {
-          logCombatInfo($scope.game.enemies[findEnemyIndex()].name + " <em>Crits!</em> <br>");
-          damageCharacter(targetCharacterIndex, activeEnemyIndex);
-        }
+      if($scope.game.enemies[activeEnemyIndex].range > 1) {
+        animateEnemyRangedAttack(targetCharacterIndex, activeEnemyIndex);
+      } else {
+        damageCharacter(targetCharacterIndex, activeEnemyIndex);
+      }
     } else {
       if($scope.game.enemies[activeEnemyIndex].movesTaken < $scope.game.enemies[activeEnemyIndex].speed) {
         moveEnemy(targetCharacterIndex, activeEnemyIndex);
@@ -868,7 +912,11 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     var itemName = drops[1];
     for(var i = 0; i < numItem; i++) {
       var item = findItemByName(itemName);
-      $scope.game.inventory.push(item);
+      if(item) {
+        $scope.game.inventory.push(item);
+      } else {
+        console.log("Couldn't find item.");
+      }
     }
     logCombatInfo("It drops " + numItem + " " + itemName + ". <br>");
   };

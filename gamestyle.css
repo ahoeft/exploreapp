@@ -261,3 +261,12 @@ tr:hover {
 .baspica {
     background-image: url("./images/baspica.png");
 }
+
+.pearlshot {
+    background-image: url("./images/pearlshot.png");
+    position: absolute;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    z-index: 9999;
+}
