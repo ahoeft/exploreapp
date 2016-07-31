@@ -953,6 +953,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     dropLoot(enemyIndex);
     giveExperience(enemyIndex, findCharacterIndex());
     $scope.turnOrder[turnToRemove].isDead = true;
+    $scope.turnOrder[turnToRemove].class = "dead";
     $scope.game.enemies.splice(enemyIndex, 1);
     if($scope.game.enemies.length < 1) {
       endCombat();

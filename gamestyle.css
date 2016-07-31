@@ -140,6 +140,13 @@ tr:hover {
     border: 1px solid black;
 }
 
+.newGameMenu {
+    padding: 8px;
+    margin: 10px;
+    float: left;
+    width: 250px;
+}
+
 .enemy {
     z-index: 2;
 }
@@ -155,9 +162,10 @@ tr:hover {
 .btn {
     padding: 8px;
     margin: 10px;
-    float: left;
     cursor: pointer;
-    background-color: gray;
+    background-color: #8F1414;
+    color: white;
+    border-radius: 25px;
 }
 .character {
     z-index: 4;
@@ -269,4 +277,23 @@ tr:hover {
     height: 50px;
     width: 50px;
     z-index: 9999;
+}
+
+#turnMenu {
+    position: absolute;
+    left: 250px;
+    height: 60px;
+    line-height: 60px;
+}
+
+.floatLeft {
+    float: left;
+}
+
+.floatRight {
+    float: right;
+}
+
+.attribute {
+    height: 50px;
 }

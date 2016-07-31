@@ -28,17 +28,17 @@
 			<div>
 				Level: {{character.level}}
 			</div>
-			<div>
+			<div class="attribute">
 				Strength: {{character.str}} 
-				<a ng-click="addAttribute('str', $index)"><i class="fa fa-plus" aria-hidden="true"></i></a>
+				<a class="btn" ng-click="addAttribute('str', $index)"><i class="fa fa-plus" aria-hidden="true"></i></a>
 			</div>
-			<div>
+			<div class="attribute">
 				Dexterity: {{character.dex}} 
-				<a ng-click="addAttribute('dex', $index)"><i class="fa fa-plus" aria-hidden="true"></i></a>
+				<a class="btn" ng-click="addAttribute('dex', $index)"><i class="fa fa-plus" aria-hidden="true"></i></a>
 			</div>
-			<div>
+			<div class="attribute">
 				Intelligence: {{character.int}} 
-				<a ng-click="addAttribute('int', $index)"><i class="fa fa-plus" aria-hidden="true"></i></a>
+				<a class="btn" ng-click="addAttribute('int', $index)"><i class="fa fa-plus" aria-hidden="true"></i></a>
 			</div>
 			<div>
 				Health: {{character.health}}
@@ -56,11 +56,14 @@
 				XP to Next Level: {{10 - character.xp}}
 			</div>
 		</div>
-		<div class="btn">
+		<div class="newGameMenu">
+			<div class="btn">
 			<i class="fa fa-map-o" aria-hidden="true"></i>
 					<a ng-mouseover="infoHover('worldMap')" 
 						ng-click="navToWorldMap()">World Map</a>
-		</div>
+			</div>
+			<div><input type="text" ng-model="game.name" /></div>
+		</div>		
 	</div>
 	<!--Overland Map View-->
 	<div ng-show="activeView == 'showGame'">
@@ -265,7 +268,7 @@
 	</div>
 	<!--Combat View-->
 	<div ng-show="activeView == 'showCombatView'">
-		<div id="turnMenu"><span ng-repeat="turn in turnOrder" class="menuItem {{turn.class}}"></span></div>
+		<div id="turnMenu"><strong>Turn Order: </strong><span ng-repeat="turn in turnOrder" class="menuItem {{turn.class}}"></span></div>
 		<div class="c1">
 			<ul>
 				<li>Active Turn: {{activeTurn.name}}<span class="menuItem {{activeTurn.class}}"></span></li>
