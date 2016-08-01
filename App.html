@@ -13,8 +13,8 @@
 	<div class="backdrop"></div>
 	<!--Start up Game View-->
 	<div ng-show="activeView == 'main'">
-		<input type="button" value="Start" ng-click="newGame()">
-		<input type ="button" value="Load" ng-click="loadGame()">
+		<input type="button" class="btn" value="Start" ng-click="newGame()">
+		<input type ="button" class="btn" value="Load" ng-click="loadGame()">
 	</div>
 	<!--New Game View-->
 	<div ng-show="activeView == 'showCharacterView'">
@@ -88,37 +88,37 @@
 				<div>{{infoBox}}</div>
 			</div>
 			<ul>
-				<li>
+				<li class="btn">
 					<i class="fa fa-gavel" aria-hidden="true"></i>
 					<a ng-mouseover="infoHover('crafting')" 
 						
 						ng-click="viewCrafting()">Craft</a>	
 				</li>
-				<li>
+				<li class="btn">
 					<i class="fa fa-search" aria-hidden="true"></i>
 					<a ng-mouseover="infoHover('harvesting')" 
 						
 						ng-click="harvest()">Harvest</a>	
 				</li>
-				<li>
+				<li class="btn">
 					<i class="fa fa-level-up" aria-hidden="true"></i>
 					<a ng-mouseover="infoHover('characters')" 
 						
 						ng-click="navToCharacters()">Characters</a>
 				</li>
-				<li>
+				<li class="btn">
 					<i class="fa fa-location-arrow" aria-hidden="true"></i>
 					<a ng-mouseover="infoHover('traveling')" 
 						
 						ng-click="travel()"> Travel</a>
 				</li>
-				<li>
+				<li class="btn">
 					<i class="fa fa-floppy-o" aria-hidden="true"></i>
 					<a ng-mouseover="infoHover('saving')" 
 						
 						ng-click="saveGame()">Save Game</a>
 				</li>
-				<li>
+				<li class="btn">
 					<i class="fa fa-download" aria-hidden="true"></i>
 					<a ng-mouseover="infoHover('loading')" 
 						
@@ -269,27 +269,33 @@
 	<!--Combat View-->
 	<div ng-show="activeView == 'showCombatView'">
 		<div id="turnMenu"><strong>Turn Order: </strong><span ng-repeat="turn in turnOrder" class="menuItem {{turn.class}}"></span></div>
-		<div class="c1">
-			<ul>
-				<li>Active Turn: {{activeTurn.name}}<span class="menuItem {{activeTurn.class}}"></span></li>
-				<li><strong>Combat Options</strong></li>
-				<li><a ng-hide="hasMoved" ng-click="highlightCombat('move')">Move</a>
-					<a ng-show="hasMoved" class="menuDisabled">Move</a>
-				</li>
-				<li><a ng-hide="hasAttacked" ng-click="highlightCombat('attack')">Attack</a>
-					<a ng-show="hasAttacked" class="menuDisabled">Attack</a>
-				</li>
-				<li><a ng-hide="hasAttacked" ng-click="">Special</a>
-					<a ng-show="hasAttacked" class="menuDisabled">Special</a>
-				</li>
-				<li><a ng-hide="hasAttacked" ng-click="displayCombatItems()">Items</a>
-					<a ng-show="hasAttacked" class="menuDisabled">Items</a>
-				</li>
-				<li><a ng-click="doNextCombatRound(false)">End Turn</a></li>
-			</ul>
-			<div ng-show="showCombatItems">
-				<span ng-repeat="item in combatItems track by $index"><a ng-click="useCombatItem(item)">{{item.name}}</a></span>
+		<div id="combatOptionMenu">
+			<div class="half">
+				<ul>
+					<li>Active Turn: {{activeTurn.name}}<span class="menuItem {{activeTurn.class}}"></span></li>
+					<li><strong>Combat Options</strong></li>
+					<li class="btn"><a ng-hide="hasMoved" ng-click="highlightCombat('move')">Move</a>
+						<a ng-show="hasMoved" class="menuDisabled">Move</a>
+					</li>
+					<li class="btn"><a ng-hide="hasAttacked" ng-click="highlightCombat('attack')">Attack</a>
+						<a ng-show="hasAttacked" class="menuDisabled">Attack</a>
+					</li>
+					<li class="btn"><a ng-hide="hasAttacked" ng-click="displaySpecial()">Special</a>
+						<a ng-show="hasAttacked" class="menuDisabled">Special</a>
+					</li>
+					<li class="btn"><a ng-hide="hasAttacked" ng-click="displayCombatItems()">Items</a>
+						<a ng-show="hasAttacked" class="menuDisabled">Items</a>
+					</li>
+					<li class="btn"><a ng-click="doNextCombatRound(false)">End Turn</a></li>
+				</ul>
 			</div>
+			<div class="half">
+				<ul ng-show="showCombatItems">
+					<li ng-repeat="item in combatItems track by $index" class="btn"><a ng-click="useCombatItem(item)">{{item.name}}</a></li>
+				</ul>
+			</div>
+			
+			
 		</div>
 		<div class="c2">
 			<span ng-repeat="tile in game.combatTiles" 
@@ -309,7 +315,7 @@
 						style="top: {{hazard.top}}px; left: {{hazard.left}}px">
 						</span>
 		</div>
-		<div class="c3">
+		<div>
 			<div id="combatInfoBox">
 				<div>Name: {{game.name}} <i class="fa fa-child" aria-hidden="true"></i></div>
 				<div>Day: {{game.day}}</div>

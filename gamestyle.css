@@ -15,9 +15,10 @@ li {
     text-decoration: none;
 }
 
-li:hover {
+.btn:hover {
     cursor: pointer;
-    background-color: yellow;
+    color: black;
+    background-color: #03BC00;
 }
 
 
@@ -52,6 +53,9 @@ li:hover {
 }
 
 #combatInfoBox {
+    position: absolute;
+    left: 800px;
+    top: 100px;
     background-color: #f1f1f1;
     margin: 10px;
     padding: 10px;
@@ -170,10 +174,10 @@ tr:hover {
 }
 
 .btn {
-    padding: 8px;
-    margin: 10px;
+    padding: 5px;
+    margin: 5px;
     cursor: pointer;
-    background-color: #8F1414;
+    background-color: #029700;
     color: white;
     border-radius: 25px;
 }
@@ -305,4 +309,17 @@ tr:hover {
 
 .attribute {
     height: 50px;
+}
+
+#combatOptionMenu {
+    position: absolute;
+    width: 238px;
+    left: 5px;
+    top: 100px;
+    background-color: lightgray;
+}
+
+.half {
+    float: left;
+    width: 50%;
 }

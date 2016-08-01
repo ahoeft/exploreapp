@@ -33,7 +33,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   //starting items to test with
   $scope.game.inventory.push({ name: "crude bow", type: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3});
   $scope.game.inventory.push({name: "sandy salve", type: "combatHeal", img: "", description: "Just... rub some dirt in that wound.", heal: 4 });
-  $scope.game.inventory.push({ name: "sandy salvo", requiredItems: "1 sand & 1 carapace ", itemType: "combatHarm", img: "./images/sandysalvo.png", description: "Ouch! Sand in the eyes! Thats gotta sting.", damage: 4});
+  $scope.game.inventory.push({ name: "sandy salvo", requiredItems: "1 sand & 1 carapace ", type: "combatHarm", img: "./images/sandysalvo.png", description: "Ouch! Sand in the eyes! Thats gotta sting.", damage: 4, range: 3, radius: 1});
 
   $scope.droppableItems = [
     { name: "gel", img: "./images/gel.png", type:"material", description: "A sticky crafting material." },
@@ -423,20 +423,8 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     $scope.activeView = 'showGameOver';
   };
 
-  var damageCharacter = function (targetCharacterIndex, activeEnemyIndex) {
-    var baseDamage = Math.round(Math.random() * $scope.game.enemies[activeEnemyIndex].damage);
-    var attributeDamage = 0;
-    if($scope.game.enemies[activeEnemyIndex].range > 1) {
-      attributeDamage = Math.floor($scope.game.enemies[activeEnemyIndex].dex / 2);
-    } else {
-      attributeDamage = Math.floor($scope.game.enemies[activeEnemyIndex].str / 2);
-    }
-    var damageDealt =  + baseDamage + attributeDamage;
-    $scope.game.characters[targetCharacterIndex].damageTaken += damageDealt;
-    logCombatInfo("<span style='color: red;'>" +$scope.game.enemies[activeEnemyIndex].name + "</span> deals " + damageDealt + " to " + $scope.game.characters[targetCharacterIndex].name + ". <br>");
-    if($scope.game.characters[targetCharacterIndex].health <= $scope.game.characters[targetCharacterIndex].damageTaken) {
-      //character is Dead
-      for(t in $scope.turnOrder) {
+  var checkTeamStatus = function (targetCharacterIndex) {
+    for(var t in $scope.turnOrder) {
         if($scope.game.characters[targetCharacterIndex].name == $scope.turnOrder[t].name) {
           logCombatInfo($scope.game.characters[targetCharacterIndex].name + " has died! <br>");
           $scope.game.characters[targetCharacterIndex].class = "dead";
@@ -454,6 +442,22 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       if(teamDown) {
         gameOver();
       }
+  };
+
+  var damageCharacter = function (targetCharacterIndex, activeEnemyIndex) {
+    var baseDamage = Math.round(Math.random() * $scope.game.enemies[activeEnemyIndex].damage);
+    var attributeDamage = 0;
+    if($scope.game.enemies[activeEnemyIndex].range > 1) {
+      attributeDamage = Math.floor($scope.game.enemies[activeEnemyIndex].dex / 2);
+    } else {
+      attributeDamage = Math.floor($scope.game.enemies[activeEnemyIndex].str / 2);
+    }
+    var damageDealt = baseDamage + attributeDamage;
+    $scope.game.characters[targetCharacterIndex].damageTaken += damageDealt;
+    logCombatInfo("<span style='color: red;'>" +$scope.game.enemies[activeEnemyIndex].name + "</span> deals " + damageDealt + " to " + $scope.game.characters[targetCharacterIndex].name + ". <br>");
+    if($scope.game.characters[targetCharacterIndex].health <= $scope.game.characters[targetCharacterIndex].damageTaken) {
+      //character is Dead
+      checkTeamStatus(targetCharacterIndex);
     }
     $scope.doNextCombatRound(false);
   };
@@ -849,9 +853,16 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         var tileTop = $scope.game.combatTiles[i].top;
         var position = {left: tileLeft, top: tileTop};
         if( tileLeft >= leftTarget && tileLeft <= rightTarget && tileTop >= topTarget && tileTop <= bottomTarget ) {
-          if(!occupiedByHazard(position)  && !occupiedByCharacter(position)) {
-            $scope.game.combatTiles[i].class += highlightTile;
-            $scope.game.tilesToHighlight.push($scope.game.combatTiles[i]);
+          if(combatOption == "attack") {
+            if(!occupiedByHazard(position)  && !occupiedByCharacter(position)) {
+              $scope.game.combatTiles[i].class += highlightTile;
+              $scope.game.tilesToHighlight.push($scope.game.combatTiles[i]);
+            }
+          } else {
+            if(!occupiedByHazard(position)  && !occupiedByCharacter(position) && !occupiedByEnemy(position)) {
+              $scope.game.combatTiles[i].class += highlightTile;
+              $scope.game.tilesToHighlight.push($scope.game.combatTiles[i]);
+            }
           }
         }
       }
@@ -977,6 +988,13 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     } 
   };
 
+  var checkEnemyHealth = function (enemyIndex) {
+    if($scope.game.enemies[enemyIndex].damageTaken >= $scope.game.enemies[enemyIndex].health) {
+      logCombatInfo("And it dies! <br>");
+      killEnemy(enemyIndex);
+    }
+  };
+
   var damageEnemy = function (enemyIndex) {
     var characterIndex = findCharacterIndex();
     var damageMax = 1;
@@ -996,10 +1014,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     $scope.game.enemies[enemyIndex].damageTaken += damageDelt;
     logCombatInfo("<span style='color: blue;'>" + $scope.game.characters[characterIndex].name + "</span> deals " + damageDelt + " to " + $scope.game.enemies[enemyIndex].name + ". <br>");
     //check if monster dies
-    if($scope.game.enemies[enemyIndex].damageTaken >= $scope.game.enemies[enemyIndex].health) {
-      logCombatInfo("And it dies! <br>");
-      killEnemy(enemyIndex);
-    }
+    checkEnemyHealth(enemyIndex);
     $scope.hasAttacked = true;
   };
 
@@ -1038,9 +1053,10 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
           $scope.game.enemies[i].top >= topTarget &&
           $scope.game.enemies[i].top <= bottomTarget) {
           //damage Enemies
-          var damageDealt = Math.round(Math.random() * item.damage);
+          var damageDealt = Math.round(Math.random() * $scope.itemToThrow.damage);
           $scope.game.enemies[i].damageTaken += damageDealt;
-          logCombatInfo("<span style='color: blue;'>" + $scope.game.characters[characterIndex].name + "</span> deals " + damageDelt + " to " + $scope.game.enemies[i].name + ". <br>");
+          logCombatInfo("<span style='color: blue;'>" + $scope.game.characters[characterIndex].name + "</span> deals " + damageDealt + " to " + $scope.game.enemies[i].name + ". <br>");
+          checkEnemyHealth(i);
         }
       }
       //blow up allies... whoops!
@@ -1050,11 +1066,27 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
           $scope.game.characters[c].top >= topTarget &&
           $scope.game.characters[c].top <= bottomTarget) {
           //damage Enemies
-          var damageDealt = Math.round(Math.random() * item.damage);
+          var damageDealt = Math.round(Math.random() * $scope.itemToThrow.damage);
           $scope.game.characters[c].damageTaken += damageDealt;
-          logCombatInfo("<span style='color: blue;'>" + $scope.game.characters[characterIndex].name + "</span> deals " + damageDelt + " to " + $scope.game.characters[c].name + ". <br>");
+          logCombatInfo("<span style='color: blue;'>" + $scope.game.characters[characterIndex].name + "</span> deals " + damageDealt + " to " + $scope.game.characters[c].name + ". <br>");
+          if($scope.game.characters[c].health <= $scope.game.characters[c].damageTaken) {
+            //oops blew up a friendly
+            checkTeamStatus(c);
+            if($scope.game.characters[c].name == $scope.activeTurn.name) {
+              //blew myself up...
+              $scope.hasAttacked = true;
+              clearCombatTiles();
+              $scope.game.inventory.splice($scope.itemToThrow.inventoryIndex, 1);
+              $scope.itemToThow = {};
+              doNextCombatRound(false);
+            }
+          }
         }
       }
+      $scope.hasAttacked = true;
+      clearCombatTiles();
+      $scope.game.inventory.splice($scope.itemToThrow.inventoryIndex, 1);
+      $scope.itemToThow = {};
     }
   };
 
@@ -1333,8 +1365,8 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         var tileTop = $scope.game.combatTiles[i].top;
         var position = {left: tileLeft, top: tileTop};
         if( tileLeft >= leftTarget && tileLeft <= rightTarget && tileTop >= topTarget && tileTop <= bottomTarget ) {
-          if(!occupiedByHazard(position)  && !occupiedByCharacter(position)) {
-            $scope.game.combatTiles[i].class += highlightTile;
+          if(!occupiedByHazard(position)) {
+            $scope.game.combatTiles[i].class += " highlightAttack";
             $scope.game.tilesToHighlight.push($scope.game.combatTiles[i]);
           }
         }
