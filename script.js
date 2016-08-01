@@ -15,6 +15,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   $scope.game.beastiary = [];
   $scope.game.availableRecipes = [];
   $scope.game.equipables = [];
+  $scope.combatItems = [];
   $scope.projectile = {};
   $scope.recipeDB = [
     { name: "glass", requiredItems: "2 sand ", itemType: "material", img: "./images/glass.png", description: "A brittle crafting material.  It requires a furnace." }, 
@@ -25,10 +26,12 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     { name: "crude bow", requiredItems: "1 driftwood & 1 gel ", itemType: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3},
     { name: "shell armor", requiredItems: "2 gel & 2 shell ", itemType: "armor", img: "./images/shellarmor.png", description: "This lightweight armor helps new islanders survive.", bonusHealth: 2, speedPenalty: 0, manaPenalty: 0},
     { name: "carapace armor", requiredItems: "2 gel & 2 carapace ", itemType: "armor", img: "./images/carapacearmor.png", description: "This heavy armor protects its wearer at the cost of speed.", bonusHealth: 4, speedPenalty: 1, manaPenalty: 0},
-    { name: "pearl", requiredItems: "5 clam ", itemType: "material", img: "./images/pearl.png", description: "A shiney pearl.  This is useful for crafting magical things."}
-  ];
-
+    { name: "pearl", requiredItems: "5 clam ", itemType: "material", img: "./images/pearl.png", description: "A shiney pearl.  This is useful for crafting magical things."},
+    { name: "sandy salve", requiredItems: "1 sand & 1 gel ", itemType: "combatHeal", img: "./images/sandysalve.png", description: "Just... rub some dirt in that wound.", heal: 4}
+  ];//ToDo add sandy salve image;
+  //starting items to test with
   $scope.game.inventory.push({ name: "crude bow", type: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3});
+  $scope.game.inventory.push({name: "sandy salve", type: "combatHeal", img: "", description: "Just... rub some dirt in that wound.", heal: 4 });
 
   $scope.droppableItems = [
     { name: "gel", img: "./images/gel.png", type:"material", description: "A sticky crafting material." },
@@ -675,6 +678,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     drawHazards();
     positionCombatants();
     rollInitiative();
+    $scope.showCombatItems = false;
     $scope.activeView = 'showCombatView';
     $scope.doNextCombatRound(true);
   };
@@ -749,7 +753,8 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       damage: recipe.damage,
       bonusHealth: recipe.bonusHealth, 
       speedPenalty: recipe.speedPenalty, 
-      manaPenalty: recipe.manaPenalty  
+      manaPenalty: recipe.manaPenalty,
+      heal: recipe.heal  
     };
     var requiredItems = recipe.requiredItems.split("& ");
     for(var ri in requiredItems) {
@@ -809,6 +814,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   $scope.highlightCombat = function(combatOption) {
       clearCombatTiles();
+      $scope.showCombatItems = false;
       //figure out where the team is
       var highlightTile = " highlightMove";
       if(combatOption == "attack") {
@@ -1233,5 +1239,33 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     $scope.game.characters[characterIndex].weapon = {};
     $scope.game.characters[characterIndex].weaponEquipped = false;
     $scope.game.characters[characterIndex].range = 1;
+  };
+
+  $scope.displayCombatItems = function() {
+    $scope.combatItems = [];
+    for(var i in $scope.game.inventory) {
+      if($scope.game.inventory[i].type == "combatHeal" || $scope.game.inventory[i].type == "combatHarm") {
+        var item = $scope.game.inventory[i];
+        item.inventoryIndex = i;
+        $scope.combatItems.push(item);
+      }
+    }
+    $scope.showCombatItems = true;
+  };
+
+  $scope.useCombatItem = function (item) {
+    var activePlayerIndex = findCharacterIndex();
+    if(item.type == "combatHeal") {
+      var newDamageTaken = $scope.game.characters[activePlayerIndex].damageTaken - item.heal;
+      if(newDamageTaken > 0) {
+        $scope.game.characters[activePlayerIndex].damageTaken = newDamageTaken;
+      } else {
+        $scope.game.characters[activePlayerIndex].damageTaken = 0;
+      }
+      logCombatInfo("<span style='color: blue'>" + $scope.game.characters[activePlayerIndex].name 
+      + "</span> heals <span style='color: lightgreen'>" + item.heal +"</span> health.");
+      $scope.game.inventory.splice(item.inventoryIndex, 1);
+      $scope.showCombatItems = false;
+    }
   };
 });

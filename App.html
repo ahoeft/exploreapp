@@ -282,8 +282,14 @@
 				<li><a ng-hide="hasAttacked" ng-click="">Special</a>
 					<a ng-show="hasAttacked" class="menuDisabled">Special</a>
 				</li>
+				<li><a ng-hide="hasAttacked" ng-click="displayCombatItems()">Items</a>
+					<a ng-show="hasAttacked" class="menuDisabled">Items</a>
+				</li>
 				<li><a ng-click="doNextCombatRound(false)">End Turn</a></li>
 			</ul>
+			<div ng-show="showCombatItems">
+				<span ng-repeat="item in combatItems track by $index"><a ng-click="useCombatItem(item)">{{item.name}}</a></span>
+			</div>
 		</div>
 		<div class="c2">
 			<span ng-repeat="tile in game.combatTiles" 
