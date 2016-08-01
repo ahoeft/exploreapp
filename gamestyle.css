@@ -97,10 +97,13 @@ li:hover {
     display: inline-block;
     height: 50px;
     width: 50px;
+    background-image: url("./images/worldCharacter.png");
 }
 
 .highlightTile {
-    background-color: #ff6 !important;
+    opacity: .5;
+    z-index: 3;
+    background-image: url("./images/highlightbeach.png") !important;
     
 }
 
