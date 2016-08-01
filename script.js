@@ -27,11 +27,13 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     { name: "shell armor", requiredItems: "2 gel & 2 shell ", itemType: "armor", img: "./images/shellarmor.png", description: "This lightweight armor helps new islanders survive.", bonusHealth: 2, speedPenalty: 0, manaPenalty: 0},
     { name: "carapace armor", requiredItems: "2 gel & 2 carapace ", itemType: "armor", img: "./images/carapacearmor.png", description: "This heavy armor protects its wearer at the cost of speed.", bonusHealth: 4, speedPenalty: 1, manaPenalty: 0},
     { name: "pearl", requiredItems: "5 clam ", itemType: "material", img: "./images/pearl.png", description: "A shiney pearl.  This is useful for crafting magical things."},
-    { name: "sandy salve", requiredItems: "1 sand & 1 gel ", itemType: "combatHeal", img: "./images/sandysalve.png", description: "Just... rub some dirt in that wound.", heal: 4}
-  ];//ToDo add sandy salve image;
+    { name: "sandy salve", requiredItems: "1 sand & 1 gel ", itemType: "combatHeal", img: "./images/sandysalve.png", description: "Just... rub some dirt in that wound.", heal: 4},
+    { name: "sandy salvo", requiredItems: "1 sand & 1 carapace ", itemType: "combatHarm", img: "./images/sandysalvo.png", description: "Ouch! Sand in the eyes! Thats gotta sting.", damage: 4, radius: 1, range: 1}
+  ];//ToDo add sandy salve image; add sandy salvo image
   //starting items to test with
   $scope.game.inventory.push({ name: "crude bow", type: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3});
   $scope.game.inventory.push({name: "sandy salve", type: "combatHeal", img: "", description: "Just... rub some dirt in that wound.", heal: 4 });
+  $scope.game.inventory.push({ name: "sandy salvo", requiredItems: "1 sand & 1 carapace ", itemType: "combatHarm", img: "./images/sandysalvo.png", description: "Ouch! Sand in the eyes! Thats gotta sting.", damage: 4});
 
   $scope.droppableItems = [
     { name: "gel", img: "./images/gel.png", type:"material", description: "A sticky crafting material." },
@@ -536,7 +538,6 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     var rightTarget = $scope.game.enemies[activeEnemyIndex].left + 50;
     var topTarget = $scope.game.enemies[activeEnemyIndex].top - 50;
     var bottomTarget = $scope.game.enemies[activeEnemyIndex].top + 50;
-    //highlight tiles to click
     $scope.game.validMoves = [];
     for(var i in $scope.game.combatTiles) {
       var tileLeft = $scope.game.combatTiles[i].left;
@@ -754,7 +755,9 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       bonusHealth: recipe.bonusHealth, 
       speedPenalty: recipe.speedPenalty, 
       manaPenalty: recipe.manaPenalty,
-      heal: recipe.heal  
+      heal: recipe.heal,
+      radius: recipe.radius,
+      range: recipe.range  
     };
     var requiredItems = recipe.requiredItems.split("& ");
     for(var ri in requiredItems) {
@@ -979,12 +982,15 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     var damageMax = 1;
     var critMulti = 1;
     var attributeDamage = Math.floor($scope.game.characters[characterIndex].str / 2);
+    if($scope.game.characters[characterIndex].range > 1) {
+      attributeDamage = Math.floor($scope.game.characters[characterIndex].dex / 2);
+    }
     if(Math.round(Math.random() * 99) + 1 > 95) {
           logCombatInfo($scope.game.characters[characterIndex].name + " <em>Crits!</em> <br>");
           critMulti = 2;
         }
     if($scope.game.characters[characterIndex].weapon && $scope.game.characters[characterIndex].weapon.damage > 0) {
-      damageMax = $scope.game.characters[characterIndex].weapon.damage;
+      damageMax = Math.round(Math.random() * $scope.game.characters[characterIndex].weapon.damage);
     }
     var damageDelt = (damageMax + attributeDamage) * critMulti;
     $scope.game.enemies[enemyIndex].damageTaken += damageDelt;
@@ -1016,11 +1022,49 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     }
   };
 
+  var throwCombatItem = function (tile) {
+    if(tile.class.includes("highlightAttack")) {
+      //determine what enemies are hit
+      var characterIndex = findCharacterIndex();
+      var multiplier = $scope.itemToThrow.radius;
+      var leftTarget = tile.left - (50 * multiplier);
+      var rightTarget = tile.left + (50 * multiplier);
+      var topTarget = tile.top - (50 * multiplier);
+      var bottomTarget = tile.top + (50 * multiplier);
+      //blow up enemies
+      for(var i in $scope.game.enemies) {
+        if($scope.game.enemies[i].left >= leftTarget &&
+          $scope.game.enemies[i].left <= rightTarget &&
+          $scope.game.enemies[i].top >= topTarget &&
+          $scope.game.enemies[i].top <= bottomTarget) {
+          //damage Enemies
+          var damageDealt = Math.round(Math.random() * item.damage);
+          $scope.game.enemies[i].damageTaken += damageDealt;
+          logCombatInfo("<span style='color: blue;'>" + $scope.game.characters[characterIndex].name + "</span> deals " + damageDelt + " to " + $scope.game.enemies[i].name + ". <br>");
+        }
+      }
+      //blow up allies... whoops!
+      for(var c in $scope.game.characters) {
+        if($scope.game.characters[c].left >= leftTarget &&
+          $scope.game.characters[c].left <= rightTarget &&
+          $scope.game.characters[c].top >= topTarget &&
+          $scope.game.characters[c].top <= bottomTarget) {
+          //damage Enemies
+          var damageDealt = Math.round(Math.random() * item.damage);
+          $scope.game.characters[c].damageTaken += damageDealt;
+          logCombatInfo("<span style='color: blue;'>" + $scope.game.characters[characterIndex].name + "</span> deals " + damageDelt + " to " + $scope.game.characters[c].name + ". <br>");
+        }
+      }
+    }
+  };
+
   $scope.resolveCombatAction = function (tile) {
-    if($scope.game.attackMode == true) {
+    if($scope.game.attackMode == true && $scope.showCombatItems == false) {
       resolveAttack(tile);
-    } else {
+    } else if($scope.game.attackMode == false && $scope.showCombatItems == false) {
       travelToHereCombat(tile);
+    } else if($scope.game.attackMode == false && $scope.showCombatItems == true) {
+      throwCombatItem(tile);
     }
   };
 
@@ -1254,6 +1298,8 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   };
 
   $scope.useCombatItem = function (item) {
+    clearCombatTiles();
+    $scope.game.attackMode = false;
     var activePlayerIndex = findCharacterIndex();
     if(item.type == "combatHeal") {
       var newDamageTaken = $scope.game.characters[activePlayerIndex].damageTaken - item.heal;
@@ -1261,11 +1307,40 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         $scope.game.characters[activePlayerIndex].damageTaken = newDamageTaken;
       } else {
         $scope.game.characters[activePlayerIndex].damageTaken = 0;
-      }
+      } 
       logCombatInfo("<span style='color: blue'>" + $scope.game.characters[activePlayerIndex].name 
-      + "</span> heals <span style='color: lightgreen'>" + item.heal +"</span> health.");
+      + "</span> heals <span style='color: green'>" + item.heal +"</span> health. <br>");
       $scope.game.inventory.splice(item.inventoryIndex, 1);
       $scope.showCombatItems = false;
+      $scope.hasAttacked = true;
+    } else if(item.type == "combatHarm") {
+      //highlight the combat tiles
+      var activePlayer = {};
+      for(c in $scope.game.characters) {
+        if($scope.activeTurn.name == $scope.game.characters[c].name) {
+          activePlayer = $scope.game.characters[c];
+        }
+      }
+      var multiplier = item.range;
+      var leftTarget = activePlayer.left - (50 * multiplier);
+      var rightTarget = activePlayer.left + (50 * multiplier);
+      var topTarget = activePlayer.top - (50 * multiplier);
+      var bottomTarget = activePlayer.top + (50 * multiplier);
+      //highlight tiles to click
+      $scope.game.tilesToHighlight = [];
+      for(var i in $scope.game.combatTiles) {
+        var tileLeft = $scope.game.combatTiles[i].left;
+        var tileTop = $scope.game.combatTiles[i].top;
+        var position = {left: tileLeft, top: tileTop};
+        if( tileLeft >= leftTarget && tileLeft <= rightTarget && tileTop >= topTarget && tileTop <= bottomTarget ) {
+          if(!occupiedByHazard(position)  && !occupiedByCharacter(position)) {
+            $scope.game.combatTiles[i].class += highlightTile;
+            $scope.game.tilesToHighlight.push($scope.game.combatTiles[i]);
+          }
+        }
+      }
+      //set ItemToThrow
+      $scope.itemToThrow = item;
     }
   };
 });
