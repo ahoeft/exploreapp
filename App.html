@@ -327,8 +327,9 @@
 					<div>Mana Remaining: {{character.mana - character.manaSpent}}</div>
 					<div>Moves Remaining: {{character.speed - character.movesTaken}}</div>
 					<div>Current XP: 
-						<div class="xpContainer"> {{character.xp}} / 100
-							<div style="width:{{character.xp * 100}}%; background-color: lightgreen"></div>
+						<div class="xpContainer">
+							<div style="background-color: green; height:100%; position:absolute; opacity: .5; width: {{character.xp}}%"></div>
+							{{character.xp}} / 100
 						</div>
 					</div>
 				</div>

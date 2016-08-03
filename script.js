@@ -661,7 +661,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     }
   };
 
-  var drawHazards = function () {
+  var drawObstacles = function () {
       $scope.game.obstacles = [];
 
       var numHazards = Math.round(Math.random() * 10) + 10;
@@ -680,7 +680,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     drawEncounterMap();
     drawEnemies();
     drawCharacters();
-    drawHazards();
+    drawObstacles();
     positionCombatants();
     rollInitiative();
     $scope.showCombatItems = false;

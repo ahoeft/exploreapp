@@ -219,11 +219,15 @@ tr:hover {
     z-index: 1;
 }
 .xpContainer {
+    height:1.5em;
+    position:relative;
     text-align: center;
     width: 100px;
-    background-color: lightgray;
+    background-color: white;
     border: 1px solid black;
 }
+
+
 
 #c4 {
     position: absolute;
