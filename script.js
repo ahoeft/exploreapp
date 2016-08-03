@@ -254,7 +254,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
           int: 2,
           damage: 2,
           speed: 2,
-          xp: 3,
+          xp: 30,
           drops: "1 carapace ",
           range: 1
         };
@@ -269,7 +269,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
           int: 2,
           damage: 3,
           speed: 2,
-          xp: 3,
+          xp: 30,
           drops: "1 gel ",
           range: 1 
         };
@@ -284,7 +284,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
           int: 2,
           damage: 3,
           speed: 0,
-          xp: 4,
+          xp: 40,
           drops: "1 pearl ",
           range: 3,
           projectile: "pearlshot" 
@@ -959,13 +959,13 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     calculateMana(characterIndex);
     $scope.game.characters[characterIndex].pointsLeft += 3;
   };
-
+  
   var giveExperience = function (enemyIndex, characterIndex) {
-    var experienceGained = $scope.game.enemies[enemyIndex].xp - $scope.game.characters[characterIndex].level;
+    var experienceGained = $scope.game.enemies[enemyIndex].xp - (10 * $scope.game.characters[characterIndex].level);
     if(experienceGained > 0) {
       logCombatInfo($scope.game.characters[characterIndex].name + " gains " + experienceGained + " experience. <br>");
       $scope.game.characters[characterIndex].xp += experienceGained;
-      if($scope.game.characters[characterIndex].xp > 9) {
+      if($scope.game.characters[characterIndex].xp > 99) {
         levelUp(characterIndex);
       }
     }
@@ -1091,13 +1091,19 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   };
 
   $scope.resolveCombatAction = function (tile) {
+    var activePlayerIndex = findCharacterIndex();
     if($scope.game.attackMode == true && $scope.showCombatItems == false) {
       resolveAttack(tile);
+      $scope.game.characters[activePlayerIndex].xp++;
     } else if($scope.game.attackMode == false && $scope.showCombatItems == false) {
       travelToHereCombat(tile);
     } else if($scope.game.attackMode == false && $scope.showCombatItems == true) {
       throwCombatItem(tile);
+      $scope.game.characters[activePlayerIndex].xp++;
     }
+    if($scope.game.characters[activePlayerIndex].xp > 99) {
+        levelUp(activePlayerIndex);
+      }
   };
 
   var createNewMap = function() {

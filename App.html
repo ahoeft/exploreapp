@@ -53,7 +53,7 @@
 				Points Left: {{character.pointsLeft}}
 			</div>
 			<div>
-				XP to Next Level: {{10 - character.xp}}
+				XP to Next Level: {{100 - character.xp}}
 			</div>
 		</div>
 		<div class="newGameMenu">
@@ -233,9 +233,9 @@
 				<div>{{infoBox}}</div>
 				<div ng-repeat="character in game.characters track by $index">
 					<div><span class="menuItem {{character.class}}"></span> {{character.name}}</div>
-					<div>XP to Next Level: 
-						<div class="xpContainer"> {{character.xp}} / 10
-							<div style="width:{{character.xp/10 * 100}}%; background-color: lightgreen"></div>
+					<div>Current XP: 
+						<div class="xpContainer"> {{character.xp}} / 100
+							<div style="width:{{character.xp * 100}}%; background-color: lightgreen"></div>
 						</div>
 					</div>
 					<div>
@@ -326,9 +326,9 @@
 					<div>Health Remaining: {{character.health - character.damageTaken}}</div>
 					<div>Mana Remaining: {{character.mana - character.manaSpent}}</div>
 					<div>Moves Remaining: {{character.speed - character.movesTaken}}</div>
-					<div>XP to Next Level: 
-						<div class="xpContainer"> {{character.xp}} / 10
-							<div style="width:{{character.xp/10 * 100}}%; background-color: lightgreen"></div>
+					<div>Current XP: 
+						<div class="xpContainer"> {{character.xp}} / 100
+							<div style="width:{{character.xp * 100}}%; background-color: lightgreen"></div>
 						</div>
 					</div>
 				</div>
