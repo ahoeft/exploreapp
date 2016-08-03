@@ -289,13 +289,16 @@
 					<li class="btn"><a ng-click="doNextCombatRound(false)">End Turn</a></li>
 				</ul>
 			</div>
-			<div class="half">
-				<ul ng-show="showCombatItems">
+			<div ng-show="showCombatItems" class="half">
+				<ul>
 					<li ng-repeat="item in combatItems track by $index" class="btn"><a ng-click="useCombatItem(item)">{{item.name}}</a></li>
 				</ul>
 			</div>
-			
-			
+			<div ng-show="showCombatSpecial" class="half">
+				<ul>
+					<li ng-repeat="special in specialMoves track by $index" class="btn"><a ng-click="performSpecialMove(special.name)">{{special.name}} Cost: {{special.manaCost}}</a></li>
+				</ul>
+			</div>
 		</div>
 		<div class="c2">
 			<span ng-repeat="tile in game.combatTiles" 

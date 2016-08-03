@@ -17,12 +17,53 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   $scope.game.equipables = [];
   $scope.combatItems = [];
   $scope.projectile = {};
+  $scope.specialMovesDB = [
+    {
+      name: "smash",
+      highlight: function() {
+        highlightBasicMeleeAttack();
+      },
+      perform: function (tile) {
+        var tileFound = findTile(tile);
+        if(tileFound) {
+          //find the enemyindex
+          var enemyIndex = findEnemyIndex(tile);
+          //damage the enemy
+          if(enemyIndex) {
+            var characterIndex = findCharacterIndex();
+            $scope.game.characters[characterIndex].manaSpent++;
+            //find positions
+            var enemyLeft = $scope.game.enemies[enemyIndex].left;
+            var enemyTop = $scope.game.enemies[enemyIndex].top;
+            var characterLeft = $scope.game.characters[characterIndex].left;
+            var characterTop = $scope.game.characters[characterIndex].top;
+            if(characterLeft > enemyLeft) {
+              $scope.game.enemies[enemyIndex].left -= 50;
+            }
+            if(characterTop > enemyTop) {
+              $scope.game.enemies[enemyIndex].top -= 50;
+            }
+            if(characterLeft < enemyLeft) {
+              $scope.game.enemies[enemyIndex].left += 50;
+            }
+            if(characterTop < enemyTop) {
+              $scope.game.enemies[enemyIndex].top += 50;
+            }
+            damageEnemy(enemyIndex, 2);
+          } else {
+            logCombatInfo("No enemy in that square, try again! <br>");
+          }
+        }
+      },
+      manaCost: 1
+    }
+  ];
   $scope.recipeDB = [
     { name: "glass", requiredItems: "2 sand ", itemType: "material", img: "./images/glass.png", description: "A brittle crafting material.  It requires a furnace." }, 
     { name: "sandstone", requiredItems: "2 sand ", itemType: "material", img: "./images/sandstone.png", description: "A useful but hard crafting material." },
     { name: "sandstone hut", requiredItems: "5 sandstone ", itemType: "structure", img: "./images/sandstonehut.png", description: "This structure will protect you from monsters at night!" },
     { name: "shell dagger", requiredItems: "1 driftwood & 1 shell ", itemType: "weapon", img: "./images/shelldagger.png", description: "This tiny shell dagger adds 1 damage.", damage: 2, range: 1},
-    { name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", itemType: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 3, range: 1},
+    { name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", itemType: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 3, range: 1, specialMoves: [ "smash" ]},
     { name: "crude bow", requiredItems: "1 driftwood & 1 gel ", itemType: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3},
     { name: "shell armor", requiredItems: "2 gel & 2 shell ", itemType: "armor", img: "./images/shellarmor.png", description: "This lightweight armor helps new islanders survive.", bonusHealth: 2, speedPenalty: 0, manaPenalty: 0},
     { name: "carapace armor", requiredItems: "2 gel & 2 carapace ", itemType: "armor", img: "./images/carapacearmor.png", description: "This heavy armor protects its wearer at the cost of speed.", bonusHealth: 4, speedPenalty: 1, manaPenalty: 0},
@@ -33,13 +74,36 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   //starting items to test with
   $scope.game.inventory.push({ name: "crude bow", type: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3});
   $scope.game.inventory.push({name: "sandy salve", type: "combatHeal", img: "", description: "Just... rub some dirt in that wound.", heal: 4 });
-  $scope.game.inventory.push({ name: "sandy salvo", requiredItems: "1 sand & 1 carapace ", type: "combatHarm", img: "./images/sandysalvo.png", description: "Ouch! Sand in the eyes! Thats gotta sting.", damage: 4, range: 3, radius: 1});
+  $scope.game.inventory.push({ name: "sandy salvo", requiredItems: "1 sand & 1 carapace ", type: "combatHarm", img: "", description: "Ouch! Sand in the eyes! Thats gotta sting.", damage: 4, range: 3, radius: 1});
+  $scope.game.inventory.push({ name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", type: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 3, range: 1, specialMoves: [ "smash" ] });
 
   $scope.droppableItems = [
     { name: "gel", img: "./images/gel.png", type:"material", description: "A sticky crafting material." },
     { name: "carapace", img: "./images/carapace.png", type:"material", description: "The hard exoskeleton of some beast." },
     { name: "pearl", img: "./images/pearl.png", type:"material", description: "A beautiful gem said to be the tear of an angel." }
   ];
+
+  var highlightBasicMeleeAttack = function () {
+    var activePlayerIndex = findCharacterIndex();
+        var activePlayer = $scope.game.characters[activePlayerIndex];
+        var leftTarget = activePlayer.left - 50;
+        var rightTarget = activePlayer.left + 50;
+        var topTarget = activePlayer.top - 50;
+        var bottomTarget = activePlayer.top + 50;
+        //highlight tiles to click
+        $scope.game.tilesToHighlight = [];
+        for(var i in $scope.game.combatTiles) {
+          var tileLeft = $scope.game.combatTiles[i].left;
+          var tileTop = $scope.game.combatTiles[i].top;
+          var position = {left: tileLeft, top: tileTop};
+          if( tileLeft >= leftTarget && tileLeft <= rightTarget && tileTop >= topTarget && tileTop <= bottomTarget ) {
+            if(!occupiedByHazard(position)  && !occupiedByCharacter(position)) {
+              $scope.game.combatTiles[i].class += " highlightAttack";
+              $scope.game.tilesToHighlight.push($scope.game.combatTiles[i]);
+            }
+          }
+        }
+  };
 
   var logOverlandInfo = function (htmlString) {
     $scope.overlandLog = $sce.trustAsHtml($scope.overlandLog + htmlString);
@@ -684,6 +748,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     positionCombatants();
     rollInitiative();
     $scope.showCombatItems = false;
+    $scope.showCombatSpecial = false;
     $scope.activeView = 'showCombatView';
     $scope.doNextCombatRound(true);
   };
@@ -761,7 +826,8 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       manaPenalty: recipe.manaPenalty,
       heal: recipe.heal,
       radius: recipe.radius,
-      range: recipe.range  
+      range: recipe.range,
+      specialMoves: recipe.specialMoves  
     };
     var requiredItems = recipe.requiredItems.split("& ");
     for(var ri in requiredItems) {
@@ -822,13 +888,12 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   $scope.highlightCombat = function(combatOption) {
       clearCombatTiles();
       $scope.showCombatItems = false;
+      $scope.showCombatSpecial = false;
       //figure out where the team is
       var highlightTile = " highlightMove";
+      $scope.combatMode = combatOption;
       if(combatOption == "attack") {
         highlightTile = " highlightAttack";
-        $scope.game.attackMode = true;
-      } else {
-        $scope.game.attackMode = false;
       }
       var activePlayer = {};
       for(c in $scope.game.characters) {
@@ -995,7 +1060,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     }
   };
 
-  var damageEnemy = function (enemyIndex) {
+  var damageEnemy = function (enemyIndex, specialMultiplier) {
     var characterIndex = findCharacterIndex();
     var damageMax = 1;
     var critMulti = 1;
@@ -1010,7 +1075,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     if($scope.game.characters[characterIndex].weapon && $scope.game.characters[characterIndex].weapon.damage > 0) {
       damageMax = Math.round(Math.random() * $scope.game.characters[characterIndex].weapon.damage);
     }
-    var damageDelt = (damageMax + attributeDamage) * critMulti;
+    var damageDelt = (damageMax + attributeDamage) * critMulti * specialMultiplier;
     $scope.game.enemies[enemyIndex].damageTaken += damageDelt;
     logCombatInfo("<span style='color: blue;'>" + $scope.game.characters[characterIndex].name + "</span> deals " + damageDelt + " to " + $scope.game.enemies[enemyIndex].name + ". <br>");
     //check if monster dies
@@ -1026,7 +1091,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       var enemyIndex = findEnemyIndex(tile);
       //damage the enemy
       if(enemyIndex) {
-        damageEnemy(enemyIndex);
+        damageEnemy(enemyIndex, 1);
       } else {
         logCombatInfo("No enemy in that square, try again! <br>");
       }
@@ -1090,15 +1155,22 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     }
   };
 
+  var performSpecialMove = function(tile) {
+    $scope.activeSpecialMove.perform(tile);
+  };
+
   $scope.resolveCombatAction = function (tile) {
     var activePlayerIndex = findCharacterIndex();
-    if($scope.game.attackMode == true && $scope.showCombatItems == false) {
+    if($scope.combatMode == "attack") {
       resolveAttack(tile);
       $scope.game.characters[activePlayerIndex].xp++;
-    } else if($scope.game.attackMode == false && $scope.showCombatItems == false) {
+    } else if($scope.combatMode == "move") {
       travelToHereCombat(tile);
-    } else if($scope.game.attackMode == false && $scope.showCombatItems == true) {
+    } else if($scope.combatMode == "useItem") {
       throwCombatItem(tile);
+      $scope.game.characters[activePlayerIndex].xp++;
+    } else if($scope.combatMode == "special") {
+      performSpecialMove(tile);
       $scope.game.characters[activePlayerIndex].xp++;
     }
     if($scope.game.characters[activePlayerIndex].xp > 99) {
@@ -1333,11 +1405,12 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       }
     }
     $scope.showCombatItems = true;
+    $scope.showComabtSpecial = false;
   };
 
   $scope.useCombatItem = function (item) {
     clearCombatTiles();
-    $scope.game.attackMode = false;
+    $scope.combatMode = "useItem";
     var activePlayerIndex = findCharacterIndex();
     if(item.type == "combatHeal") {
       var newDamageTaken = $scope.game.characters[activePlayerIndex].damageTaken - item.heal;
@@ -1379,6 +1452,43 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       }
       //set ItemToThrow
       $scope.itemToThrow = item;
+    }
+  };
+
+  $scope.displaySpecial = function () {
+    clearCombatTiles();
+    $scope.specialMoves = [];
+    var activeCharacterIndex = findCharacterIndex();
+    $scope.combatMode = "special";
+    $scope.showCombatSpecial = true;
+    $scope.showCombatItems = false;
+    //check it Item has special moves
+    if($scope.game.characters[activeCharacterIndex].weaponEquipped) {
+      var character = $scope.game.characters[activeCharacterIndex];
+      for(var i in character.weapon.specialMoves) {
+        var specialMove = findSpecialMoveByName(character.weapon.specialMoves[i]);
+        $scope.specialMoves.push(specialMove);
+      }
+    }
+  };
+
+  var findSpecialMoveByName = function (moveName) {
+    var specialMove = undefined;
+    for(var i in $scope.specialMovesDB) {
+      if(moveName == $scope.specialMovesDB[i].name) {
+        specialMove = $scope.specialMovesDB[i];
+        break;
+      }
+    }
+    return specialMove;
+  };
+
+  $scope.performSpecialMove = function(moveName) {
+    //find the special move by name
+    $scope.activeSpecialMove = findSpecialMoveByName(moveName);
+    //perform the highlight
+    if($scope.activeSpecialMove) {
+      $scope.activeSpecialMove.highlight();
     }
   };
 });
