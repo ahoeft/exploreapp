@@ -185,8 +185,8 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   var occupiedByHazard = function (unoccupiedPosition) {
     var occupied = false;
     //loop through enemies
-    for(var h in $scope.game.hazards) {
-      if(unoccupiedPosition.top == $scope.game.hazards[h].top && unoccupiedPosition.left == $scope.game.hazards[h].left) {
+    for(var h in $scope.game.obstacles) {
+      if(unoccupiedPosition.top == $scope.game.obstacles[h].top && unoccupiedPosition.left == $scope.game.obstacles[h].left) {
         occupied = true;
       }
     }
@@ -204,9 +204,9 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         positionOccupied = true;
       }
     }
-    //loop through hazard
-    for(var h in $scope.game.hazards) {
-      if(unoccupiedPosition.top == $scope.game.hazards[h].top && unoccupiedPosition.left == $scope.game.hazards[h].left) {
+    //loop through obstacle
+    for(var h in $scope.game.obstacles) {
+      if(unoccupiedPosition.top == $scope.game.obstacles[h].top && unoccupiedPosition.left == $scope.game.obstacles[h].left) {
         positionOccupied = true;
       }
     }
@@ -231,11 +231,11 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       $scope.game.characters[c].left = unoccupiedPosition.left;
       $scope.game.characters[c].top = unoccupiedPosition.top;
     }
-    //then place hazards
-    for(var h in $scope.game.hazards) {
+    //then place obstacles
+    for(var h in $scope.game.obstacles) {
       var unoccupiedPosition = findUnoccupiedPosition();
-      $scope.game.hazards[h].left = unoccupiedPosition.left;
-      $scope.game.hazards[h].top = unoccupiedPosition.top;
+      $scope.game.obstacles[h].left = unoccupiedPosition.left;
+      $scope.game.obstacles[h].top = unoccupiedPosition.top;
     }
   };
 
@@ -662,15 +662,15 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   };
 
   var drawHazards = function () {
-      $scope.game.hazards = [];
+      $scope.game.obstacles = [];
 
       var numHazards = Math.round(Math.random() * 10) + 10;
       for(var i = 0; i < numHazards; i++) {
-        var hazard = {};
-        hazard.class = "rock hazard";
-        hazard.left = 200;
-        hazard.top = 50;
-        $scope.game.hazards.push(hazard);
+        var obstacle = {};
+        obstacle.class = "rock obstacle";
+        obstacle.left = 200;
+        obstacle.top = 50;
+        $scope.game.obstacles.push(obstacle);
       }
   };
 
