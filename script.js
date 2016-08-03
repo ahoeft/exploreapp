@@ -37,17 +37,23 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
             var enemyTop = $scope.game.enemies[enemyIndex].top;
             var characterLeft = $scope.game.characters[characterIndex].left;
             var characterTop = $scope.game.characters[characterIndex].top;
+            var targetLeft = 0, targetTop = 0;
             if(characterLeft > enemyLeft) {
-              $scope.game.enemies[enemyIndex].left -= 50;
+              targetLeft = $scope.game.enemies[enemyIndex].left - 50;
             }
             if(characterTop > enemyTop) {
-              $scope.game.enemies[enemyIndex].top -= 50;
+              targetTop = $scope.game.enemies[enemyIndex].top - 50;
             }
             if(characterLeft < enemyLeft) {
-              $scope.game.enemies[enemyIndex].left += 50;
+              targetLeft = $scope.game.enemies[enemyIndex].left + 50;
             }
             if(characterTop < enemyTop) {
-              $scope.game.enemies[enemyIndex].top += 50;
+              targetTop = $scope.game.enemies[enemyIndex].top + 50;
+            }
+            var position = { left: targetLeft, top: targetTop };
+            if(!occupiedByHazard(position) && !occupiedByCharacter(position) && !occupiedByEnemy(position) && isOnTheBoard(position)) {
+              $scope.game.enemies[enemyIndex].left = targetLeft;
+              $scope.game.enemies[enemyIndex].top = targetTop;
             }
             damageEnemy(enemyIndex, 2);
           } else {
@@ -76,12 +82,23 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   $scope.game.inventory.push({name: "sandy salve", type: "combatHeal", img: "", description: "Just... rub some dirt in that wound.", heal: 4 });
   $scope.game.inventory.push({ name: "sandy salvo", requiredItems: "1 sand & 1 carapace ", type: "combatHarm", img: "", description: "Ouch! Sand in the eyes! Thats gotta sting.", damage: 4, range: 3, radius: 1});
   $scope.game.inventory.push({ name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", type: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 3, range: 1, specialMoves: [ "smash" ] });
+  $scope.game.inventory.push({ name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", type: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 3, range: 1, specialMoves: [ "smash" ] });
+  $scope.game.inventory.push({ name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", type: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 3, range: 1, specialMoves: [ "smash" ] });
+  $scope.game.inventory.push({ name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", type: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 3, range: 1, specialMoves: [ "smash" ] });
 
   $scope.droppableItems = [
     { name: "gel", img: "./images/gel.png", type:"material", description: "A sticky crafting material." },
     { name: "carapace", img: "./images/carapace.png", type:"material", description: "The hard exoskeleton of some beast." },
     { name: "pearl", img: "./images/pearl.png", type:"material", description: "A beautiful gem said to be the tear of an angel." }
   ];
+
+  var isOnTheBoard = function (position) {
+    var onTheBoard = false;
+    if(position.left >= 250 && position.left <= 700 && position.top >= 100 && position.top <= 550) {
+      onTheBoard = true;
+    }
+    return onTheBoard;
+  };
 
   var highlightBasicMeleeAttack = function () {
     var activePlayerIndex = findCharacterIndex();
@@ -1157,6 +1174,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   var performSpecialMove = function(tile) {
     $scope.activeSpecialMove.perform(tile);
+    clearCombatTiles();
   };
 
   $scope.resolveCombatAction = function (tile) {

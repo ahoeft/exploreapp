@@ -296,7 +296,7 @@
 			</div>
 			<div ng-show="showCombatSpecial" class="half">
 				<ul>
-					<li ng-repeat="special in specialMoves track by $index" class="btn"><a ng-click="performSpecialMove(special.name)">{{special.name}} Cost: {{special.manaCost}}</a></li>
+					<li ng-repeat="special in specialMoves track by $index"><a class="btn" ng-click="performSpecialMove(special.name)">{{special.name}}</a> Cost: {{special.manaCost}}</li>
 				</ul>
 			</div>
 		</div>
