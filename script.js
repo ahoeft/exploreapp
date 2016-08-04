@@ -256,7 +256,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       };
       var randomPercent = getRandomPercent();
       if(lair.tile == "beach") {
-        if(randomPercent < 33) {
+        if(randomPercent < 100) {
           lair.name = "Slime Pits";
           lair.class = "slimepits";
         } else if (randomPercent < 66) {
@@ -870,7 +870,15 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       var numHazards = Math.round(Math.random() * 10) + 10;
       for(var i = 0; i < numHazards; i++) {
         var obstacle = {};
-        obstacle.class = "rock obstacle";
+        if("beach" == $scope.game.team.location) {
+          var randomPercent = getRandomPercent();
+          if(randomPercent < 50) {
+            obstacle.class = "rock obstacle";
+          } else {
+            obstacle.class = "palmtree obstacle";
+          }
+        }
+        
         obstacle.left = 200;
         obstacle.top = 50;
         $scope.game.obstacles.push(obstacle);
