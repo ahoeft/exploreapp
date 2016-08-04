@@ -1266,7 +1266,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     if(tileFound) {
       //find the enemyindex
       var enemyIndex = findEnemyIndex(tile);
-      if($scope.game.characters[characterIndex].weapon.range > 1) {
+      if($scope.game.characters[characterIndex].weapon && $scope.game.characters[characterIndex].weapon.range > 1) {
         animateCharacterRangedAttack(tile, characterIndex, enemyIndex);
       } else {
         //damage the enemy
