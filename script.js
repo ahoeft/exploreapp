@@ -108,10 +108,11 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   $scope.recipeDB = [
     { name: "glass", requiredItems: "2 sand ", itemType: "material", img: "./images/glass.png", description: "A brittle crafting material.  It requires a furnace." }, 
     { name: "sandstone", requiredItems: "2 sand ", itemType: "material", img: "./images/sandstone.png", description: "A useful but hard crafting material." },
+    { name: "carapace", requiredItems: "2 shell ", itemType: "material", img: "./images/carapace.png", description: "The hard exoskeleton of some beast." },
     { name: "sandstone hut", requiredItems: "5 sandstone ", itemType: "structure", img: "./images/sandstonehut.png", description: "This structure will protect you from monsters at night!" },
-    { name: "shell dagger", requiredItems: "1 gel & 1 shell ", itemType: "weapon", img: "./images/shelldagger.png", description: "This tiny shell dagger adds 1 damage.", damage: 2, range: 1, specialMoves: [ "rend" ]},
+    { name: "glass shank", requiredItems: "1 gel & 1 glass ", itemType: "weapon", img: "./images/shelldagger.png", description: "This tiny shell dagger adds 1 damage.", damage: 2, range: 1, specialMoves: [ "rend" ]},
     { name: "driftwood wand", requiredItems: "1 driftwood & 1 pearl ", itemType: "weapon", img: "./images/driftwoodwand.png", description: "A magical wand used for blasting enemies!", damage: 3, range: 2, projectileClass: "energywave", specialMoves: [ "fireblast" ]},
-    { name: "shell spear", requiredItems: "1 carapace & 1 shell ", itemType: "weapon", img: "./images/shellspear.png", description: "A shortspear imbued with holy power.", damage: 2, range: 1, specialMoves: [ "self heal" ]},
+    { name: "glass spear", requiredItems: "1 carapace & 1 glass ", itemType: "weapon", img: "./images/shellspear.png", description: "A shortspear imbued with holy power.", damage: 2, range: 1, specialMoves: [ "self heal" ]},
     { name: "beach pipe", requiredItems: "1 glass & 1 gel ", itemType: "weapon", img: "./images/beachpipe.png", description: "A short ranged blowgun, useful for those who want to control the battlefield.", damage: 2, range: 1, specialMoves: [ "poison cloud" ]},
     { name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", itemType: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 3, range: 1, specialMoves: [ "smash" ]},
     { name: "crude bow", requiredItems: "1 driftwood & 1 gel ", itemType: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3, projectileClass: "Arrow", specialMoves: [ "called shot" ]},
@@ -125,10 +126,10 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   $scope.game.inventory.push({ name: "crude bow", type: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3, projectileClass: "Arrow"});
   $scope.game.inventory.push({name: "sandy salve", type: "combatHeal", img: "", description: "Just... rub some dirt in that wound.", heal: 4 });
   $scope.game.inventory.push({ name: "sandy salvo", requiredItems: "1 sand & 1 carapace ", type: "combatHarm", img: "", description: "Ouch! Sand in the eyes! Thats gotta sting.", damage: 4, range: 3, radius: 1});
-  $scope.game.inventory.push({ name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", type: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 3, range: 1, specialMoves: [ "smash" ] });
-  $scope.game.inventory.push({ name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", type: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 3, range: 1, specialMoves: [ "smash" ] });
-  $scope.game.inventory.push({ name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", type: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 3, range: 1, specialMoves: [ "smash" ] });
-  $scope.game.inventory.push({ name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", type: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 3, range: 1, specialMoves: [ "smash" ] });
+  $scope.game.inventory.push({ name: "beatin' stick", type: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 3, range: 1, specialMoves: [ "smash" ] });
+  $scope.game.inventory.push({ name: "beatin' stick", type: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 3, range: 1, specialMoves: [ "smash" ] });
+  $scope.game.inventory.push({ name: "beatin' stick", type: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 3, range: 1, specialMoves: [ "smash" ] });
+  $scope.game.inventory.push({ name: "beatin' stick", type: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 3, range: 1, specialMoves: [ "smash" ] });
 
   $scope.droppableItems = [
     { name: "gel", img: "./images/gel.png", type:"material", description: "A sticky crafting material." },
