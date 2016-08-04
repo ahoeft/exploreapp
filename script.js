@@ -15,6 +15,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   $scope.game.beastiary = [];
   $scope.game.availableRecipes = [];
   $scope.game.equipables = [];
+  $scope.game.lairs = [];
   $scope.combatItems = [];
   $scope.projectile = {};
   $scope.specialMovesDB = [
@@ -208,9 +209,46 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     $scope.infoHover('clear');
   };
 
+  var foundLair = function () {
+    //check if lair exists
+    var lairExists = false;
+    for(var i in $scope.game.lairs) {
+      if($scope.game.lairs[i].top == $scope.game.team.top && $scope.game.lairs[i].left == $scope.game.team.left) {
+        lairExists = true;
+        break;
+      }
+    }
+    if(!lairExists) {
+      logOverlandInfo("You found a lair! <br>");
+      var lair = {
+        left: $scope.game.team.left,
+        top: $scope.game.team.top,
+        tile: $scope.game.team.location
+      };
+      var randomPercent = getRandomPercent();
+      if(lair.tile == "beach") {
+        if(randomPercent < 33) {
+          lair.name = "Slime Pits";
+          lair.class = "slimepits";
+        } else if (randomPercent < 66) {
+          lair.name = "Crabby Cove";
+          lair.class = "crabbycove";
+        } else {
+          lair.name = "Flooded Cave";
+          lair.class = "floodedcave";
+        }
+      } //TODO add images for the above lairs.
+      $scope.game.lairs.push(lair);
+    }
+  };
+
+  var getRandomPercent = function () {
+    return Math.round(Math.random() * 99) + 1;
+  };
+
   var harvestBeach = function() {
     var item = {};
-    var randomPercent = Math.round(Math.random() * 99) + 1;
+    var randomPercent = getRandomPercent();
     var randomAmount = Math.round(Math.random() * 2) + 1;
     if(randomPercent < 20) {
       item = undefined;
@@ -228,6 +266,10 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         $scope.game.inventory.push(item);
       }
       logOverlandInfo("You successfully harvest " + randomAmount + " " + item.name + ". <br>");
+      var randomLairChance = getRandomPercent();
+      if(randomLairChance > 50) {
+        foundLair();
+      }
     } else {
       logOverlandInfo("You search for hours but find nothing. <br>");
     } 
@@ -343,7 +385,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   var fetchRandomEnemy = function () {
     var enemy = {};
-    var randomPercent = Math.round(Math.random() * 99) + 1;
+    var randomPercent = getRandomPercent();
     if($scope.game.team.location == "beach") {
       if(randomPercent < 33) {
         enemy = {
@@ -823,7 +865,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   };
 
   var checkForEncounter = function () {
-    var randomPercent = Math.round(Math.random() * 99) + 1;
+    var randomPercent = getRandomPercent();
     if(randomPercent > 60 && $scope.game.night == "day") {
       generateEncounter();
     }
@@ -1280,13 +1322,17 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   var createNewMap = function() {
     var id = 1;
     $scope.game.tiles = [];
-    for (var i = 0; i < 10; i++) {
-      for(var q = 0; q < 10; q++) {
+    for (var i = 0; i < 11; i++) {
+      for(var q = 0; q < 11; q++) {
         var tile = {};
         tile.column = q;
         tile.row = i;
         tile.class = "ocean";
-        if(i > 0 && i < 9 && q > 0 && q < 9) tile.class = "beach";
+        if(i > 0 && i < 10 && q > 0 && q < 10) tile.class = "beach";
+        if(i > 1 && i < 9 && q > 1 && q < 9) tile.class = "grassland";
+        if(i > 2 && i < 8 && q > 2 && q < 8) tile.class = "forest";
+        if(i > 3 && i < 7 && q > 3 && q < 7) tile.class = "mountain";
+        if(i > 4 && i < 6 && q > 4 && q < 6) tile.class = "volcano";
         tile.top = (tile.row * 50) + 100;
         tile.left = (tile.column * 50) + 250;
         tile.id = id;

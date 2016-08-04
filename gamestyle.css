@@ -233,7 +233,7 @@ tr:hover {
     position: absolute;
     width: 500px;
     height: 150px;
-    top: 615px;
+    top: 665px;
     left: 250px;
     background-color: lightgray;
     overflow: scroll;
@@ -374,4 +374,20 @@ tr:hover {
 .disabled {
     background-color: gray !important;
     color: lightgray !important;
+}
+
+.grassland {
+    background-color: lightgreen;
+}
+
+.forest {
+    background-color: seagreen;
+}
+
+.mountain {
+    background-color: saddlebrown;
+}
+
+.volcano {
+    background-color: red;
 }
