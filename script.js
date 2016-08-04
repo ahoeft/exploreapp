@@ -1206,6 +1206,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   var performSpecialMove = function(tile) {
     $scope.activeSpecialMove.perform(tile);
     clearCombatTiles();
+    $scope.attackMode = false;
   };
 
   $scope.resolveCombatAction = function (tile) {
@@ -1516,6 +1517,12 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       var character = $scope.game.characters[activeCharacterIndex];
       for(var i in character.weapon.specialMoves) {
         var specialMove = findSpecialMoveByName(character.weapon.specialMoves[i]);
+        var manaLeft = character.mana - character.manaSpent;
+        if(specialMove.manaCost > manaLeft) {
+          specialMove.disable = true;
+        } else {
+          specialMove.disable = false;
+        }
         $scope.specialMoves.push(specialMove);
       }
     }
@@ -1532,7 +1539,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     return specialMove;
   };
 
-  $scope.performSpecialMove = function(moveName) {
+  $scope.highlightSpecialMove = function(moveName) {
     //find the special move by name
     $scope.activeSpecialMove = findSpecialMoveByName(moveName);
     //perform the highlight

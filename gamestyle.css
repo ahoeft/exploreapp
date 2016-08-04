@@ -363,3 +363,15 @@ tr:hover {
     width: 50px;
     z-index: 9999;
 }
+
+.manacost {
+    background-color: lightblue;
+    color: white;
+    border-radius: 50%;
+    padding: 5px;
+}
+
+.disabled {
+    background-color: gray !important;
+    color: lightgray !important;
+}
