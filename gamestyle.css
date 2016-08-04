@@ -327,3 +327,39 @@ tr:hover {
     float: left;
     width: 50%;
 }
+
+.Arrowright {
+    background-image: url("./images/rightArrow.png");
+    position: absolute;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    z-index: 9999;
+}
+
+.Arrowleft {
+    background-image: url("./images/leftArrow.png");
+    position: absolute;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    z-index: 9999;
+}
+
+.Arrowup {
+    background-image: url("./images/upArrow.png");
+    position: absolute;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    z-index: 9999;
+}
+
+.Arrowdown {
+    background-image: url("./images/downArrow.png");
+    position: absolute;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    z-index: 9999;
+}

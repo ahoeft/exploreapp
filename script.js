@@ -70,7 +70,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     { name: "sandstone hut", requiredItems: "5 sandstone ", itemType: "structure", img: "./images/sandstonehut.png", description: "This structure will protect you from monsters at night!" },
     { name: "shell dagger", requiredItems: "1 driftwood & 1 shell ", itemType: "weapon", img: "./images/shelldagger.png", description: "This tiny shell dagger adds 1 damage.", damage: 2, range: 1},
     { name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", itemType: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 3, range: 1, specialMoves: [ "smash" ]},
-    { name: "crude bow", requiredItems: "1 driftwood & 1 gel ", itemType: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3},
+    { name: "crude bow", requiredItems: "1 driftwood & 1 gel ", itemType: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3, projectileClass: "Arrow"},
     { name: "shell armor", requiredItems: "2 gel & 2 shell ", itemType: "armor", img: "./images/shellarmor.png", description: "This lightweight armor helps new islanders survive.", bonusHealth: 2, speedPenalty: 0, manaPenalty: 0},
     { name: "carapace armor", requiredItems: "2 gel & 2 carapace ", itemType: "armor", img: "./images/carapacearmor.png", description: "This heavy armor protects its wearer at the cost of speed.", bonusHealth: 4, speedPenalty: 1, manaPenalty: 0},
     { name: "pearl", requiredItems: "5 clam ", itemType: "material", img: "./images/pearl.png", description: "A shiney pearl.  This is useful for crafting magical things."},
@@ -78,7 +78,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     { name: "sandy salvo", requiredItems: "1 sand & 1 carapace ", itemType: "combatHarm", img: "./images/sandysalvo.png", description: "Ouch! Sand in the eyes! Thats gotta sting.", damage: 4, radius: 1, range: 1}
   ];//ToDo add sandy salve image; add sandy salvo image
   //starting items to test with
-  $scope.game.inventory.push({ name: "crude bow", type: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3});
+  $scope.game.inventory.push({ name: "crude bow", type: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3, projectileClass: "Arrow"});
   $scope.game.inventory.push({name: "sandy salve", type: "combatHeal", img: "", description: "Just... rub some dirt in that wound.", heal: 4 });
   $scope.game.inventory.push({ name: "sandy salvo", requiredItems: "1 sand & 1 carapace ", type: "combatHarm", img: "", description: "Ouch! Sand in the eyes! Thats gotta sting.", damage: 4, range: 3, radius: 1});
   $scope.game.inventory.push({ name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", type: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 3, range: 1, specialMoves: [ "smash" ] });
@@ -444,7 +444,13 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   };
 
-  var findClosestPosition = function(targetTile, positions) {
+  var findClosestPosition = function(targetTile) {
+    var positions = [
+          {left: $scope.projectile.left - 1, top: $scope.projectile.top, name: "left"},
+          {left: $scope.projectile.left + 1, top: $scope.projectile.top, name: "right"},
+          {left: $scope.projectile.left, top: $scope.projectile.top - 1, name: "up"},
+          {left: $scope.projectile.left, top: $scope.projectile.top + 1, name: "down"}
+        ];
     positions.sort(function(a, b) {
           var x1 = targetTile.left;
           var y1 = targetTile.top;
@@ -472,13 +478,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         $scope.showProjectile = false;
         damageCharacter(targetCharacterIndex, activeEnemyIndex);
       } else {
-        var possiblePositions = [
-          {left: $scope.projectile.left - 1, top: $scope.projectile.top},
-          {left: $scope.projectile.left + 1, top: $scope.projectile.top},
-          {left: $scope.projectile.left, top: $scope.projectile.top - 1},
-          {left: $scope.projectile.left, top: $scope.projectile.top + 1}
-        ];
-        var closestPosition = findClosestPosition(targetTile, possiblePositions);
+        var closestPosition = findClosestPosition(targetTile);
         $scope.projectile.left = closestPosition.left;
         $scope.projectile.top = closestPosition.top;
         $timeout(function() { moveProjectile(targetTile, targetCharacterIndex, activeEnemyIndex); }, 4);
@@ -847,7 +847,8 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       heal: recipe.heal,
       radius: recipe.radius,
       range: recipe.range,
-      specialMoves: recipe.specialMoves  
+      specialMoves: recipe.specialMoves,
+      projectileClass: recipe.projectileClass  
     };
     var requiredItems = recipe.requiredItems.split("& ");
     for(var ri in requiredItems) {
@@ -1103,20 +1104,47 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     $scope.hasAttacked = true;
   };
 
+  var animateCharacterRangedAttack = function(targetTile, characterIndex, enemyIndex) {
+    $scope.projectile.top = $scope.game.characters[characterIndex].top;
+    $scope.projectile.left = $scope.game.characters[characterIndex].left;
+    $scope.projectile.class = $scope.game.characters[characterIndex].weapon.projectileClass;
+    var direction = findClosestPosition(targetTile);
+    $scope.projectile.class += direction.name;
+    $scope.showProjectile = true;
+    function moveProjectile(targetTile, characterIndex, enemyIndex) {
+      if(targetTile.top == $scope.projectile.top && targetTile.left == $scope.projectile.left) {
+        $scope.showProjectile = false;
+        damageEnemy(enemyIndex, 1);
+        clearCombatTiles();
+        $scope.attackMode = false;
+      } else {
+        var closestPosition = findClosestPosition(targetTile);
+        $scope.projectile.left = closestPosition.left;
+        $scope.projectile.top = closestPosition.top;
+        $timeout(function() { moveProjectile(targetTile, characterIndex, enemyIndex); }, 4);
+      }
+    };
+    $timeout(function() { moveProjectile(targetTile, characterIndex, enemyIndex); }, 4);
+  };
+
   var resolveAttack = function (tile) {
     var characterIndex = findCharacterIndex();
     var tileFound = findTile(tile);
     if(tileFound) {
       //find the enemyindex
       var enemyIndex = findEnemyIndex(tile);
-      //damage the enemy
-      if(enemyIndex) {
-        damageEnemy(enemyIndex, 1);
+      if($scope.game.characters[characterIndex].weapon.range > 1) {
+        animateCharacterRangedAttack(tile, characterIndex, enemyIndex);
       } else {
-        logCombatInfo("No enemy in that square, try again! <br>");
+        //damage the enemy
+        if(enemyIndex) {
+          damageEnemy(enemyIndex, 1);
+        } else {
+          logCombatInfo("No enemy in that square, try again! <br>");
+        }
+        clearCombatTiles();
+        $scope.attackMode = false;
       }
-      clearCombatTiles();
-      $scope.attackMode = false;
     } else {
       logCombatInfo("Target not in range. <br>");
     }
