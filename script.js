@@ -62,21 +62,42 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         }
       },
       manaCost: 1
+    },
+    {
+      name: "rend",
+      highlight: function() {
+        highlightBasicMeleeAttack();
+      },
+      perform: function(tile) {
+        var characterIndex = findCharacterIndex();
+        var tileFound = findTile(tile);
+        if(tileFound) {
+          var enemyIndex = findEnemyIndex(tile);
+          damageEnemy(enemyIndex, 1);
+          $scope.game.enemies[enemyIndex].bleeding += 2;
+        } else {
+            logCombatInfo("No enemy in that square, try again! <br>");
+        }
+      },
+      manaCost: 1
     }
   ];
   $scope.recipeDB = [
     { name: "glass", requiredItems: "2 sand ", itemType: "material", img: "./images/glass.png", description: "A brittle crafting material.  It requires a furnace." }, 
     { name: "sandstone", requiredItems: "2 sand ", itemType: "material", img: "./images/sandstone.png", description: "A useful but hard crafting material." },
     { name: "sandstone hut", requiredItems: "5 sandstone ", itemType: "structure", img: "./images/sandstonehut.png", description: "This structure will protect you from monsters at night!" },
-    { name: "shell dagger", requiredItems: "1 driftwood & 1 shell ", itemType: "weapon", img: "./images/shelldagger.png", description: "This tiny shell dagger adds 1 damage.", damage: 2, range: 1},
+    { name: "shell dagger", requiredItems: "1 gel & 1 shell ", itemType: "weapon", img: "./images/shelldagger.png", description: "This tiny shell dagger adds 1 damage.", damage: 2, range: 1, specialMoves: [ "rend" ]},
+    { name: "driftwood wand", requiredItems: "1 driftwood & 1 pearl ", itemType: "weapon", img: "./images/driftwoodwand.png", description: "A magical wand used for blasting enemies!", damage: 3, range: 2, projectileClass: "energywave", specialMoves: [ "fireblast" ]},
+    { name: "shell spear", requiredItems: "1 carapace & 1 shell ", itemType: "weapon", img: "./images/shellspear.png", description: "A shortspear imbued with holy power.", damage: 2, range: 1, specialMoves: [ "rend" ]},
+    { name: "beach pipe", requiredItems: "1 glass & 1 gel ", itemType: "weapon", img: "./images/beachpipe.png", description: "A short ranged blowgun, useful for those who want to control the battlefield.", damage: 2, range: 1, specialMoves: [ "poison cloud" ]},
     { name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", itemType: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 3, range: 1, specialMoves: [ "smash" ]},
-    { name: "crude bow", requiredItems: "1 driftwood & 1 gel ", itemType: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3, projectileClass: "Arrow"},
+    { name: "crude bow", requiredItems: "1 driftwood & 1 gel ", itemType: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3, projectileClass: "Arrow", specialMoves: [ "called shot" ]},
     { name: "shell armor", requiredItems: "2 gel & 2 shell ", itemType: "armor", img: "./images/shellarmor.png", description: "This lightweight armor helps new islanders survive.", bonusHealth: 2, speedPenalty: 0, manaPenalty: 0},
     { name: "carapace armor", requiredItems: "2 gel & 2 carapace ", itemType: "armor", img: "./images/carapacearmor.png", description: "This heavy armor protects its wearer at the cost of speed.", bonusHealth: 4, speedPenalty: 1, manaPenalty: 0},
     { name: "pearl", requiredItems: "5 clam ", itemType: "material", img: "./images/pearl.png", description: "A shiney pearl.  This is useful for crafting magical things."},
     { name: "sandy salve", requiredItems: "1 sand & 1 gel ", itemType: "combatHeal", img: "./images/sandysalve.png", description: "Just... rub some dirt in that wound.", heal: 4},
     { name: "sandy salvo", requiredItems: "1 sand & 1 carapace ", itemType: "combatHarm", img: "./images/sandysalvo.png", description: "Ouch! Sand in the eyes! Thats gotta sting.", damage: 4, radius: 1, range: 1}
-  ];//ToDo add sandy salve image; add sandy salvo image
+  ];//ToDo add sandy salve image; add sandy salvo image; add driftwood wand image; add shell spear image; add beach pipe image; add energywave image
   //starting items to test with
   $scope.game.inventory.push({ name: "crude bow", type: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3, projectileClass: "Arrow"});
   $scope.game.inventory.push({name: "sandy salve", type: "combatHeal", img: "", description: "Just... rub some dirt in that wound.", heal: 4 });
@@ -388,6 +409,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       enemy.top = 50;
       enemy.left = 200;
       enemy.damageTaken = 0;
+      enemy.bleeding = 0;
       $scope.game.enemies.push(enemy);
     }
   };
@@ -674,7 +696,6 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   };
 
   var doEnemyTurn = function () {
-    //find closest player
     var activeEnemy = {};
     var activeEnemyIndex = 0;
     for(e in $scope.game.enemies) {
@@ -684,6 +705,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         break;
       }
     }
+    //find closest player
     var targetCharacterIndex = findClosestCharacterIndex(activeEnemy);
     //check if in attack range
     var inRange = checkRange(targetCharacterIndex, activeEnemyIndex);
@@ -703,6 +725,32 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     }
   };
 
+  var startEnemyTurn = function () {
+    if($scope.activeTurn.isDead == false) {
+      var activeEnemyIndex = 0;
+      for(e in $scope.game.enemies) {
+        if($scope.activeTurn.name == $scope.game.enemies[e].name) {
+          activeEnemyIndex = e;
+          break;
+        }
+      }
+      if($scope.game.enemies[activeEnemyIndex].bleeding > 0) {
+        $scope.game.enemies[activeEnemyIndex].damageTaken += $scope.game.enemies[activeEnemyIndex].bleeding;
+        logCombatInfo($scope.game.enemies[activeEnemyIndex].name + " bleeds for " + $scope.game.enemies[activeEnemyIndex].bleeding + " damage. <br>");
+          if($scope.game.enemies[activeEnemyIndex].damageTaken >= $scope.game.enemies[activeEnemyIndex].health) {
+            logCombatInfo($scope.game.enemies[activeEnemyIndex].name + " has bled to death. <br>");
+            dropLoot(enemyIndex);
+            $scope.turnOrder[turnToRemove].isDead = true;
+            $scope.turnOrder[turnToRemove].class = "dead";
+            $scope.game.enemies.splice(enemyIndex, 1);
+            if($scope.game.enemies.length < 1) {
+              endCombat();
+            }
+          }
+      }
+    }
+  };
+
   $scope.doNextCombatRound = function (startingRound) {
     clearCombatTiles($scope.activeTurnIndex);
     if(startingRound == false) {
@@ -718,6 +766,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
     //Check if it is an enemies turn
     if($scope.activeTurn.type == "enemy") {
+      startEnemyTurn();
       if($scope.activeTurn.isDead == false) {
         //clear enemy moves
         for(e in $scope.game.enemies) {
