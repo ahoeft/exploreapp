@@ -81,6 +81,28 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         }
       },
       manaCost: 1
+    },
+    {
+      name: "self heal",
+      highlight: function() {
+        var characterIndex = findCharacterIndex();
+        for(var i in $scope.combatTiles) {
+          if($scope.combatTiles[i].top == $scope.game.characters[characterIndex].top && $scope.combatTiles[i].left == $scope.game.characters[characterIndex].left) {
+            $scope.combatTiles[i].class += " highlightAttack";
+          }
+        }
+      },
+      perform: function(tile) {
+        clearCombatTiles();
+        var characterIndex = findCharacterIndex();
+        var damageHealed = Math.floor($scope.game.characters[characterIndex].int / 2) + 4;
+        if(damageHealed > $scope.game.characters[characterIndex].damageTaken) {
+          $scope.game.characters[characterIndex].damageTaken = 0;
+        } else {
+          $scope.game.characters[characterIndex].damageTaken -= damageHealed;
+        }
+      },
+      manaCost: 2
     }
   ];
   $scope.recipeDB = [
@@ -89,7 +111,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     { name: "sandstone hut", requiredItems: "5 sandstone ", itemType: "structure", img: "./images/sandstonehut.png", description: "This structure will protect you from monsters at night!" },
     { name: "shell dagger", requiredItems: "1 gel & 1 shell ", itemType: "weapon", img: "./images/shelldagger.png", description: "This tiny shell dagger adds 1 damage.", damage: 2, range: 1, specialMoves: [ "rend" ]},
     { name: "driftwood wand", requiredItems: "1 driftwood & 1 pearl ", itemType: "weapon", img: "./images/driftwoodwand.png", description: "A magical wand used for blasting enemies!", damage: 3, range: 2, projectileClass: "energywave", specialMoves: [ "fireblast" ]},
-    { name: "shell spear", requiredItems: "1 carapace & 1 shell ", itemType: "weapon", img: "./images/shellspear.png", description: "A shortspear imbued with holy power.", damage: 2, range: 1, specialMoves: [ "rend" ]},
+    { name: "shell spear", requiredItems: "1 carapace & 1 shell ", itemType: "weapon", img: "./images/shellspear.png", description: "A shortspear imbued with holy power.", damage: 2, range: 1, specialMoves: [ "self heal" ]},
     { name: "beach pipe", requiredItems: "1 glass & 1 gel ", itemType: "weapon", img: "./images/beachpipe.png", description: "A short ranged blowgun, useful for those who want to control the battlefield.", damage: 2, range: 1, specialMoves: [ "poison cloud" ]},
     { name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", itemType: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 3, range: 1, specialMoves: [ "smash" ]},
     { name: "crude bow", requiredItems: "1 driftwood & 1 gel ", itemType: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3, projectileClass: "Arrow", specialMoves: [ "called shot" ]},
@@ -209,15 +231,21 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     $scope.infoHover('clear');
   };
 
-  var foundLair = function () {
-    //check if lair exists
+  var checkIfLairExists = function () {
     var lairExists = false;
     for(var i in $scope.game.lairs) {
       if($scope.game.lairs[i].top == $scope.game.team.top && $scope.game.lairs[i].left == $scope.game.team.left) {
         lairExists = true;
+        $scope.currentLair = $scope.game.lairs[i];
         break;
       }
     }
+    return lairExists;
+  };
+
+  var foundLair = function () {
+    //check if lair exists
+    var lairExists = checkIfLairExists();
     if(!lairExists) {
       logOverlandInfo("You found a lair! <br>");
       var lair = {
@@ -238,6 +266,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
           lair.class = "floodedcave";
         }
       } //TODO add images for the above lairs.
+      $scope.lairHere = true;
       $scope.game.lairs.push(lair);
     }
   };
@@ -250,13 +279,13 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     var item = {};
     var randomPercent = getRandomPercent();
     var randomAmount = Math.round(Math.random() * 2) + 1;
-    if(randomPercent < 20) {
+    if(randomPercent < 10) {
       item = undefined;
-    } else if (randomPercent < 45) {
+    } else if (randomPercent < 40) {
       item = { name: "sand", img: "./images/sand.png", type:"material", description: "A useful material for crafting." };
-    } else if (randomPercent < 70) {
+    } else if (randomPercent < 65) {
       item = { name: "shell", img: "./images/shell.png", type:"material", description: "A useful material for crafting." };
-    } else if (randomPercent < 95) {
+    } else if (randomPercent < 90) {
       item = { name: "driftwood", img: "./images/driftwood.png", type:"material", description: "A useful material for crafting." };
     } else {
       item = { name: "clam", img: "./images/clam.png", type:"material", description: "A useful material for crafting." };
@@ -796,14 +825,12 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   $scope.doNextCombatRound = function (startingRound) {
     clearCombatTiles($scope.activeTurnIndex);
     if(startingRound == false) {
-          console.log($scope.activeTurnIndex);
           if($scope.activeTurnIndex == $scope.turnOrder.length - 1) {
             $scope.activeTurnIndex = 0;
           } else {
             $scope.activeTurnIndex++;
           }
           $scope.activeTurn = $scope.turnOrder[$scope.activeTurnIndex];
-          console.log($scope.activeTurn.name);
     }
 
     //Check if it is an enemies turn
@@ -1062,6 +1089,11 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         }
         $scope.game.tilesToHighlight = [];
         nextTurn();
+        if(checkIfLairExists()) {
+          $scope.lairHere = true;
+        } else {
+          $scope.lairHere = false;
+        }
       }
   };
 
@@ -1119,8 +1151,6 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       var item = findItemByName(itemName);
       if(item) {
         $scope.game.inventory.push(item);
-      } else {
-        console.log("Couldn't find item.");
       }
     }
     logCombatInfo("It drops " + numItem + " " + itemName + ". <br>");

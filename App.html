@@ -112,6 +112,10 @@
 						
 						ng-click="travel()"> Travel</a>
 				</li>
+				<li ng-show="lairHere" class="btn">
+					<i class="fa fa-paw" aria-hidden="true"></i>
+					<a ng-click="raidLair()" >Raid Lair</a>
+				</li>
 				<li class="btn">
 					<i class="fa fa-floppy-o" aria-hidden="true"></i>
 					<a ng-mouseover="infoHover('saving')" 
