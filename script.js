@@ -444,6 +444,21 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   };
 
+  var findClosestPosition = function(targetTile, positions) {
+    positions.sort(function(a, b) {
+          var x1 = targetTile.left;
+          var y1 = targetTile.top;
+          var a1 = a.left;
+          var a2 = a.top;
+          var b1 = b.left;
+          var b2 = b.top;
+     	    var distanceA = Math.sqrt( (x1-a1)*(x1-a1) + (y1-a2)*(y1-a2) );
+          var distanceB = Math.sqrt( (x1-b1)*(x1-b1) + (y1-b2)*(y1-b2) );
+          return distanceA - distanceB;
+        });
+    return positions[0];
+  };
+
   var animateEnemyRangedAttack = function (targetCharacterIndex, activeEnemyIndex) {
     $scope.showProjectile = true;
     $scope.projectile.class = $scope.game.enemies[activeEnemyIndex].projectile;
@@ -457,27 +472,15 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         $scope.showProjectile = false;
         damageCharacter(targetCharacterIndex, activeEnemyIndex);
       } else {
-        if(targetTile.top < $scope.projectile.top && targetTile.left < $scope.projectile.left) {
-          $scope.projectile.top--;
-          $scope.projectile.left--;
-        } else if(targetTile.top < $scope.projectile.top && targetTile.left > $scope.projectile.left) {
-          $scope.projectile.top--;
-          $scope.projectile.left++;
-        } else if(targetTile.top > $scope.projectile.top && targetTile.left > $scope.projectile.left){
-          $scope.projectile.top++;
-          $scope.projectile.left++;
-        } else if(targetTile.top > $scope.projectile.top && targetTile.left < $scope.projectile.left) {
-          $scope.projectile.top++;
-          $scope.projectile.left--;
-        } else if(targetTile.top > $scope.projectile.top && targetTile.left == $scope.projectile.left) {
-          $scope.projectile.top++;
-        } else if(targetTile.top < $scope.projectile.top && targetTile.left == $scope.projectile.left) {
-          $scope.projectile.top--;
-        } else if(targetTile.top == $scope.projectile.top && targetTile.left < $scope.projectile.left) {
-          $scope.projectile.left--;
-        } else if(targetTile.top == $scope.projectile.top && targetTile.left > $scope.projectile.left) {
-          $scope.projectile.left++;
-        }
+        var possiblePositions = [
+          {left: $scope.projectile.left - 1, top: $scope.projectile.top},
+          {left: $scope.projectile.left + 1, top: $scope.projectile.top},
+          {left: $scope.projectile.left, top: $scope.projectile.top - 1},
+          {left: $scope.projectile.left, top: $scope.projectile.top + 1}
+        ];
+        var closestPosition = findClosestPosition(targetTile, possiblePositions);
+        $scope.projectile.left = closestPosition.left;
+        $scope.projectile.top = closestPosition.top;
         $timeout(function() { moveProjectile(targetTile, targetCharacterIndex, activeEnemyIndex); }, 4);
       }
     };
