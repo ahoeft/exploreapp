@@ -56,6 +56,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
               $scope.game.enemies[enemyIndex].left = targetLeft;
               $scope.game.enemies[enemyIndex].top = targetTop;
             }
+            logCombatInfo($scope.game.characters[characterIndex].name + " uses smash.  The enemy falls backwards!");
             damageEnemy(enemyIndex, 2);
           } else {
             logCombatInfo("No enemy in that square, try again! <br>");
@@ -76,6 +77,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
           var enemyIndex = findEnemyIndex(tile);
           damageEnemy(enemyIndex, 1);
           $scope.game.enemies[enemyIndex].bleeding += 2;
+          logCombatInfo($scope.game.characters[characterIndex].name + "uses rend.  The " + $scope.game.enemies[enemyIndex].name + " begins to bleed!");
         } else {
             logCombatInfo("No enemy in that square, try again! <br>");
         }
@@ -101,6 +103,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         } else {
           $scope.game.characters[characterIndex].damageTaken -= damageHealed;
         }
+        logCombatInfo($scope.game.characters[characterIndex].name + " uses self heal. " + $scope.game.characters[characterIndex].name + " heals for " + damageHealed + "! <br>");
       },
       manaCost: 2
     }
