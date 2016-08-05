@@ -1029,6 +1029,43 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     return Math.sqrt( (x1-b1)*(x1-b1) + (x2-b2)*(x2-b2) );
   }
 
+  var canReachTile = function(startingLocation, targetLocation) {
+    var returnTile = undefined;
+    var currentTile = startingLocation;
+    for(var i = 0; i < startingLocation.speed; i++) {
+      //build potentialMoves
+      var sortedMoves = [];
+      var potentialMoves = [
+        { left: currentTile.left - 50, top: currentTile.top },
+        { left: currentTile.left + 50, top: currentTile.top },
+        { left: currentTile.left, top: currentTile.top - 50 },
+        { left: currentTile.left, top: currentTile.top + 50 },
+        { left: currentTile.left, top: currentTile.top }
+      ];
+      for(var x in potentialMoves) {
+        if(!occupiedByCharacter(potentialMoves[x]) && !occupiedByEnemy(potentialMoves[x]) && !occupiedByObstacle(potentialMoves[x])) {
+          sortedMoves.push(potentialMoves[x]);
+        }
+      }
+      sortedMoves.sort(function(a, b) {
+          var x1 = targetLocation.left;
+          var y1 = targetLocation.top;
+          var a1 = a.left;
+          var a2 = a.top;
+          var b1 = b.left;
+          var b2 = b.top;
+     	    var distanceA = Math.sqrt( (x1-a1)*(x1-a1) + (y1-a2)*(y1-a2) );
+          var distanceB = Math.sqrt( (x1-b1)*(x1-b1) + (y1-b2)*(y1-b2) );
+          return distanceA - distanceB;
+        });
+      currentTile = sortedMoves[0];
+    }
+    if(currentTile.left == targetLocation.left && currentTile.top == targetLocation.top) {
+      returnTile = targetLocation;
+    }
+    return returnTile;
+  }
+
   $scope.highlightCombat = function(combatOption) {
       clearCombatTiles();
       $scope.showCombatItems = false;
@@ -1054,6 +1091,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       var maxDistance = 50 * multiplier;
       //highlight tiles to click
       $scope.game.tilesToHighlight = [];
+      $scope.potentialMoveTiles = [];
       for(var i in $scope.game.combatTiles) {
         var tileLeft = $scope.game.combatTiles[i].left;
         var tileTop = $scope.game.combatTiles[i].top;
@@ -1067,10 +1105,18 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
             }
           } else {
             if(!occupiedByObstacle(position)  && !occupiedByCharacter(position) && !occupiedByEnemy(position)) {
-              $scope.game.combatTiles[i].class += highlightTile;
-              $scope.game.tilesToHighlight.push($scope.game.combatTiles[i]);
+              //$scope.game.combatTiles[i].class += highlightTile;
+              $scope.potentialMoveTiles.push($scope.game.combatTiles[i]);
             }
           }
+        }
+      }
+      //clean up move tiles you cannot reach
+      for(var x in $scope.potentialMoveTiles) {
+        var tile = canReachTile(activePlayer, $scope.potentialMoveTiles[x]);
+        if(tile) {
+          $scope.game.combatTiles[tile.id - 1].class += " highlightMove";
+          $scope.game.tilesToHighlight.push(tile);
         }
       }
   };
