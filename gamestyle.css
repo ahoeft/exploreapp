@@ -446,7 +446,7 @@ tr:hover {
     background-image: url("./images/slimepits.png");
 }
 
-.Enerywavedown {
+.Energywavedown {
     background-image: url("./images/downEnergywave.png");
     position: absolute;
     display: inline-block;
@@ -455,7 +455,7 @@ tr:hover {
     z-index: 9999;
 }
 
-.Enerywaveup {
+.Energywaveup {
     background-image: url("./images/upEnergywave.png");
     position: absolute;
     display: inline-block;
@@ -464,7 +464,7 @@ tr:hover {
     z-index: 9999;
 }
 
-.Enerywaveleft {
+.Energywaveleft {
     background-image: url("./images/leftEnergywave.png");
     position: absolute;
     display: inline-block;
@@ -473,11 +473,47 @@ tr:hover {
     z-index: 9999;
 }
 
-.Enerywaveright {
+.Energywaveright {
     background-image: url("./images/rightEnergywave.png");
     position: absolute;
     display: inline-block;
     height: 50px;
     width: 50px;
     z-index: 9999;
+}
+
+.Dartup {
+    background-image: url("./images/upDart.png");
+    position: absolute;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    z-index: 9999;    
+}
+
+.Dartdown {
+    background-image: url("./images/downDart.png");
+    position: absolute;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    z-index: 9999;    
+}
+
+.Dartleft {
+    background-image: url("./images/leftDart.png");
+    position: absolute;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    z-index: 9999;    
+}
+
+.Dartright {
+    background-image: url("./images/rightDart.png");
+    position: absolute;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    z-index: 9999;    
 }
