@@ -47,9 +47,38 @@ li {
 }
 
 #craftingInfoBox {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 340px;
+    background-color: lightgray;
+    margin: 5px;
+}
+
+#craftOptionMenu {
+    position: absolute;
+    left: 1175px;
+    top: 0px;
     width: 160px;
-    background-color: #f1f1f1;
-    margin: 25px;
+    background-color: lightgray;
+    margin: 5px;
+}
+
+#craftItemArea {
+    position: absolute;
+    width: 820px;
+    left: 350px;
+    top: 0px;
+    background-color: lightgray;
+    margin: 5px;
+}
+
+.characterContainer {
+    display: block;
+    float: left;
+    width: 160px;
+    margin: 2px;
+    border: 1px solid black;
 }
 
 #combatInfoBox {
@@ -229,6 +258,7 @@ tr:hover {
     position:relative;
     text-align: center;
     width: 100px;
+    margin: 8px;
     background-color: white;
     border: 1px solid black;
 }
@@ -261,6 +291,14 @@ tr:hover {
     border: 1px solid black;
     margin: 8px;
     background-image: url("./images/bootslot.png");
+}
+
+.equippedItemSlot {
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    border: 1px solid black;
+    margin: 8px;
 }
 
 .weaponSlot {
