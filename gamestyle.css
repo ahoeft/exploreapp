@@ -445,3 +445,39 @@ tr:hover {
 .slimepits {
     background-image: url("./images/slimepits.png");
 }
+
+.Enerywavedown {
+    background-image: url("./images/downEnergywave.png");
+    position: absolute;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    z-index: 9999;
+}
+
+.Enerywaveup {
+    background-image: url("./images/upEnergywave.png");
+    position: absolute;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    z-index: 9999;
+}
+
+.Enerywaveleft {
+    background-image: url("./images/leftEnergywave.png");
+    position: absolute;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    z-index: 9999;
+}
+
+.Enerywaveright {
+    background-image: url("./images/rightEnergywave.png");
+    position: absolute;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    z-index: 9999;
+}
