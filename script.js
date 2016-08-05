@@ -88,26 +88,24 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       manaCost: 1
     },
     {
-      name: "self heal",
+      name: "regen",
       highlight: function() {
         var characterIndex = findCharacterIndex();
-        for(var i in $scope.combatTiles) {
-          if($scope.combatTiles[i].top == $scope.game.characters[characterIndex].top && $scope.combatTiles[i].left == $scope.game.characters[characterIndex].left) {
-            $scope.combatTiles[i].class += " highlightAttack";
+        for(var i in $scope.game.combatTiles) {
+          if($scope.game.combatTiles[i].top == $scope.game.characters[characterIndex].top && $scope.game.combatTiles[i].left == $scope.game.characters[characterIndex].left) {
+            $scope.game.combatTiles[i].class += " highlightAttack";
           }
         }
       },
       perform: function(tile) {
-        $scope.game.characters[characterIndex].manaSpent++;
+        var characterIndex = findCharacterIndex();
+        $scope.game.characters[characterIndex].manaSpent += 2;
         clearCombatTiles();
         var characterIndex = findCharacterIndex();
-        var damageHealed = Math.floor($scope.game.characters[characterIndex].int / 2) + 4;
-        if(damageHealed > $scope.game.characters[characterIndex].damageTaken) {
-          $scope.game.characters[characterIndex].damageTaken = 0;
-        } else {
-          $scope.game.characters[characterIndex].damageTaken -= damageHealed;
-        }
-        logCombatInfo($scope.game.characters[characterIndex].name + " uses self heal. " + $scope.game.characters[characterIndex].name + " heals for " + damageHealed + "! <br>");
+        var regenVal = Math.floor($scope.game.characters[characterIndex].int / 2);
+        $scope.game.characters[characterIndex].regen = regenVal;
+        logCombatInfo($scope.game.characters[characterIndex].name + " uses regen.  " + $scope.game.characters[characterIndex].name + "'s wounds begin to heal. <br>");
+        $scope.hasAttacked = true;
       },
       manaCost: 2
     },
@@ -146,7 +144,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     { name: "sandstone hut", requiredItems: "5 sandstone ", itemType: "structure", img: "./images/sandstonehut.png", description: "This structure will protect you from monsters at night!" },
     { name: "glass shank", requiredItems: "1 gel & 1 glass ", itemType: "weapon", img: "./images/shelldagger.png", description: "A sharp chunk of glass that will make your enemies bleed.", damage: 4, range: 1, specialMoves: [ "rend" ]},
     { name: "driftwood wand", requiredItems: "1 driftwood & 1 pearl ", itemType: "weapon", img: "./images/driftwoodwand.png", description: "A magical wand used for blasting enemies!", damage: 3, range: 2, projectileClass: "Energywave", specialMoves: [ "fireblast" ]},
-    { name: "glass spear", requiredItems: "1 carapace & 1 glass ", itemType: "weapon", img: "./images/shellspear.png", description: "A shortspear imbued with holy power.", damage: 4, range: 1, specialMoves: [ "self heal" ]},
+    { name: "glass spear", requiredItems: "1 carapace & 1 glass ", itemType: "weapon", img: "./images/shellspear.png", description: "A shortspear imbued with holy power.", damage: 4, range: 1, specialMoves: [ "regen" ]},
     { name: "beach pipe", requiredItems: "1 glass & 1 gel ", itemType: "weapon", img: "./images/beachpipe.png", description: "A short ranged blowgun, useful for those who want to control the battlefield.", damage: 3, range: 3, projectileClass: "Dart", specialMoves: [ "poison cloud" ]},
     { name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", itemType: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 4, range: 1, specialMoves: [ "smash" ]},
     { name: "crude bow", requiredItems: "1 driftwood & 1 gel ", itemType: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3, projectileClass: "Arrow", specialMoves: [ "called shot" ]},
@@ -178,6 +176,15 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     projectileClass: "Energywave", 
     specialMoves: ["fireblast" ]
   });
+  $scope.game.inventory.push({ 
+    name: "glass spear",  
+    type: "weapon", 
+    img: "./images/shellspear.png", 
+    description: "A shortspear imbued with holy power.", 
+    damage: 4, 
+    range: 1, 
+    specialMoves: [ "regen" ]
+});
   
   $scope.droppableItems = [
     { name: "gel", img: "./images/gel.png", type:"material", description: "A sticky crafting material." },
@@ -518,7 +525,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     $scope.game.enemies = [];
     var numEnemies = Math.round(Math.random() * 4) + 1;
     if($scope.game.night == "night") {
-      numEnemies = numEnemies * 2;
+      numEnemies = numEnemies + 2;
     }
     for(var n = 0; n < numEnemies; n++) {
       var enemy = fetchRandomEnemy();
@@ -756,7 +763,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   var notOccupied = function (tile) {
     var unoccupied = false;
-    if(!occupiedByEnemy(tile) && !occupiedByCharacter(tile) && !occupiedByObstacle(tile)) {
+    if(!occupiedByEnemy(tile) && !occupiedByCharacter(tile) && !occupiedByObstacle(tile) && isOnTheBoard(tile)) {
       unoccupied = true;
     }
     return unoccupied;
@@ -869,6 +876,26 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     }
   };
 
+  var startCharacterTurn = function() {
+    var characterIndex = findCharacterIndex();
+    $scope.hasAttacked = false;
+    $scope.hasMoved = false;
+    for(var c in $scope.game.characters) {
+      if($scope.activeTurn.name == $scope.game.characters[c].name) {
+        $scope.game.characters[c].movesTaken = 0;
+      }
+    }
+    //check regen
+    if($scope.game.characters[characterIndex].regen && $scope.game.characters[characterIndex].regen > 0) {
+      if($scope.game.characters[characterIndex].regen > $scope.game.characters[characterIndex].damageTaken) {
+        $scope.game.characters[characterIndex].damageTaken = 0;
+      } else {
+        $scope.game.characters[characterIndex].damageTaken -= $scope.game.characters[characterIndex].regen;
+        logCombatInfo($scope.game.characters[characterIndex].name + " regenerates <span style='color: lightgreen'>" + $scope.game.characters[characterIndex].regen + "</span> health. <br>");
+      }
+    }
+  };
+
   $scope.doNextCombatRound = function (startingRound) {
     clearCombatTiles($scope.activeTurnIndex);
     if(startingRound == false) {
@@ -896,16 +923,11 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         $scope.doNextCombatRound(false);
       }  
     } else {
-      $scope.hasAttacked = false;
-      $scope.hasMoved = false;
+      //character turn
       if($scope.activeTurn.isDead) {
         $scope.doNextCombatRound(false);
       } else {
-        for(var c in $scope.game.characters) {
-          if($scope.activeTurn.name == $scope.game.characters[c].name) {
-            $scope.game.characters[c].movesTaken = 0;
-          }
-        }
+        startCharacterTurn();
       }
     }
   };

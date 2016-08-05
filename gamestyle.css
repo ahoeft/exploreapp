@@ -212,7 +212,7 @@ tr:hover {
     border-radius: 25px;
 }
 .character {
-    z-index: 4;
+    z-index: 2;
 }
 
 .menuDisabled {
