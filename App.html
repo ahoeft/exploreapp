@@ -83,15 +83,16 @@
 						ng-mouseover="infoHover(lair.name)"></span>
 			</div>
 		</div>
-		<div class="c3">
-			<div id="infoBox">
+		<div id="overlandMenuArea">
+			<div id="overlandInfoBox">
 				<div>Name: {{game.name}} <i class="fa fa-child" aria-hidden="true"></i></div>
 				<div>Day: {{game.day}}</div>
 				<div><i class="fa fa-clock-o" aria-hidden="true"></i>: {{game.clock}}</div>
 				<div class="title">Info</div>
 				<div>{{infoBox}}</div>
 			</div>
-			<ul>
+			<div id="overlandMenuOptions">
+				<ul>
 				<li class="btn">
 					<i class="fa fa-gavel" aria-hidden="true"></i>
 					<a ng-mouseover="infoHover('crafting')" 
@@ -133,6 +134,7 @@
 						ng-click="loadGame()">Load Game</a>
 				</li>
 			</ul>
+			</div>
 		</div>
 		<div id="c4">
 			<p id="overlandLog" ng-bind-html="overlandLog"></p>

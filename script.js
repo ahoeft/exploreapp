@@ -102,7 +102,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         $scope.game.characters[characterIndex].manaSpent += 2;
         clearCombatTiles();
         var characterIndex = findCharacterIndex();
-        var regenVal = Math.floor($scope.game.characters[characterIndex].int / 2);
+        var regenVal = Math.floor(($scope.game.characters[characterIndex].int + $scope.game.characters[characterIndex].str )/ 2);
         $scope.game.characters[characterIndex].regen = regenVal;
         logCombatInfo($scope.game.characters[characterIndex].name + " uses regen.  " + $scope.game.characters[characterIndex].name + "'s wounds begin to heal. <br>");
         $scope.hasAttacked = true;
@@ -142,9 +142,9 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     { name: "sandstone", requiredItems: "2 sand ", itemType: "material", img: "./images/sandstone.png", description: "A useful but hard crafting material." },
     { name: "carapace", requiredItems: "2 shell ", itemType: "material", img: "./images/carapace.png", description: "The hard exoskeleton of some beast." },
     { name: "sandstone hut", requiredItems: "5 sandstone ", itemType: "structure", img: "./images/sandstonehut.png", description: "This structure will protect you from monsters at night!" },
-    { name: "glass shank", requiredItems: "1 gel & 1 glass ", itemType: "weapon", img: "./images/shelldagger.png", description: "A sharp chunk of glass that will make your enemies bleed.", damage: 4, range: 1, specialMoves: [ "rend" ]},
+    { name: "glass shank", requiredItems: "1 gel & 1 glass ", itemType: "weapon", img: "./images/glassshank.png", description: "A sharp chunk of glass that will make your enemies bleed.", damage: 4, range: 1, specialMoves: [ "rend" ]},
     { name: "driftwood wand", requiredItems: "1 driftwood & 1 pearl ", itemType: "weapon", img: "./images/driftwoodwand.png", description: "A magical wand used for blasting enemies!", damage: 3, range: 2, projectileClass: "Energywave", specialMoves: [ "fireblast" ]},
-    { name: "glass spear", requiredItems: "1 carapace & 1 glass ", itemType: "weapon", img: "./images/shellspear.png", description: "A shortspear imbued with holy power.", damage: 4, range: 1, specialMoves: [ "regen" ]},
+    { name: "glass spear", requiredItems: "1 carapace & 1 glass ", itemType: "weapon", img: "./images/glassspear.png", description: "A shortspear imbued with holy power.", damage: 4, range: 1, specialMoves: [ "regen" ]},
     { name: "beach pipe", requiredItems: "1 glass & 1 gel ", itemType: "weapon", img: "./images/beachpipe.png", description: "A short ranged blowgun, useful for those who want to control the battlefield.", damage: 3, range: 3, projectileClass: "Dart", specialMoves: [ "poison cloud" ]},
     { name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", itemType: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 4, range: 1, specialMoves: [ "smash" ]},
     { name: "crude bow", requiredItems: "1 driftwood & 1 gel ", itemType: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3, projectileClass: "Arrow", specialMoves: [ "called shot" ]},
@@ -153,7 +153,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     { name: "pearl", requiredItems: "5 clam ", itemType: "material", img: "./images/pearl.png", description: "A shiney pearl.  This is useful for crafting magical things."},
     { name: "sandy salve", requiredItems: "1 sand & 1 gel ", itemType: "combatHeal", img: "./images/sandysalve.png", description: "Just... rub some dirt in that wound.", heal: 4},
     { name: "sandy salvo", requiredItems: "1 sand & 1 carapace ", itemType: "combatHarm", img: "./images/sandysalvo.png", description: "Ouch! Sand in the eyes! Thats gotta sting.", damage: 4, radius: 1, range: 1}
-  ];//ToDo add sandy salve image; add sandy salvo image; add driftwood wand image; add shell spear image; add beach pipe image;
+  ];//ToDo add sandy salve image; add sandy salvo image; add driftwood wand image;
   //starting items to test with
   $scope.game.inventory.push({ name: "crude bow", type: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3, projectileClass: "Arrow", specialMoves: [ "called shot" ]});
   $scope.game.inventory.push({ 
@@ -179,7 +179,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   $scope.game.inventory.push({ 
     name: "glass spear",  
     type: "weapon", 
-    img: "./images/shellspear.png", 
+    img: "./images/glassspear.png", 
     description: "A shortspear imbued with holy power.", 
     damage: 4, 
     range: 1, 

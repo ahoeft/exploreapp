@@ -21,30 +21,17 @@ li {
     background-color: #03BC00;
 }
 
-
-.c1 {
-    display: inline-block;
-    width: 10%;
-    vertical-align: top;
-}
-
-.c2 {
-    display: inline-block;
-    width: 70%;
-    background-color: white;
-}
-
-.c3 {
-    display: inline-block;
-    vertical-align: top;
-}
-
-#infoBox {
+#overlandInfoBox {
     width: 160px;
     height:160px;
     text-align: center;
     background-color: #f1f1f1;
     margin: 25px;
+}
+
+#overlandMenuOptions {
+    text-align: center;
+    margin: 50px;
 }
 
 #craftingInfoBox {
@@ -517,4 +504,14 @@ tr:hover {
     height: 50px;
     width: 50px;
     z-index: 9999;    
+}
+
+#overlandMenuArea {
+    position: absolute;
+    width: 210px;
+    margin: 0 auto;
+    left: 810px;
+    top: 100px;
+    background-color: lightgray;
+    text-align: center;
 }
