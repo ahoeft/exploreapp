@@ -784,6 +784,9 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         $scope.game.validMoves.push(potentialMoves[i]);
       }
     }
+    if($scope.game.validMoves.length < 1) {
+      $scope.doNextCombatRound(false);
+    }
     //figure out which move is closer to the character
     $scope.game.validMoves.sort(function(a, b) {
       var x1 = $scope.game.characters[targetCharacterIndex].left;
@@ -1450,7 +1453,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
               clearCombatTiles();
               $scope.game.inventory.splice($scope.itemToThrow.inventoryIndex, 1);
               $scope.itemToThow = {};
-              doNextCombatRound(false);
+              $scope.doNextCombatRound(false);
             }
           }
         }
