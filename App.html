@@ -20,7 +20,7 @@
 	<div ng-show="activeView == 'showCharacterView'">
 		<div class="characterBox" ng-repeat="character in game.characters track by $index">
 			<div>
-				<input ng-show="newGame" type="text" ng-model="character.name"> <span ng-hide="newGame">{{character.name}}</span>
+				Game Name: <input ng-show="newGame" type="text" ng-model="character.name"> <span ng-hide="newGame">{{character.name}}</span>
 			</div>
 			<div>
 				Avatar: <span class="menuItem {{character.class}}"></span>
@@ -57,12 +57,12 @@
 			</div>
 		</div>
 		<div class="newGameMenu">
+			<div ng-show="newGame"><input type="text" ng-model="game.name" /></div><h1 ng-hide="newGame">{{game.name}}</h1>
 			<div class="btn">
 			<i class="fa fa-map-o" aria-hidden="true"></i>
 					<a ng-mouseover="infoHover('worldMap')" 
 						ng-click="navToWorldMap()">World Map</a>
 			</div>
-			<div><input type="text" ng-model="game.name" /></div>
 		</div>		
 	</div>
 	<!--Overland Map View-->

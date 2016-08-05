@@ -181,10 +181,9 @@ tr:hover {
 }
 
 .newGameMenu {
+    float: left;
     padding: 8px;
     margin: 10px;
-    float: left;
-    width: 250px;
 }
 
 .enemy {
