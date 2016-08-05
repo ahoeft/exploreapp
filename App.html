@@ -13,8 +13,8 @@
 	<div class="backdrop"></div>
 	<!--Start up Game View-->
 	<div ng-show="activeView == 'main'">
-		<input type="button" class="btn" value="Start" ng-click="newGame()">
-		<input type ="button" class="btn" value="Load" ng-click="loadGame()">
+		<a class="btn" ng-click="newGame()"> Start </a>
+		<a class="btn" ng-click="loadGame()"> Load </a>
 	</div>
 	<!--New Game View-->
 	<div ng-show="activeView == 'showCharacterView'">
