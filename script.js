@@ -52,11 +52,11 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
               targetTop = $scope.game.enemies[enemyIndex].top + 50;
             }
             var position = { left: targetLeft, top: targetTop };
-            if(!occupiedByHazard(position) && !occupiedByCharacter(position) && !occupiedByEnemy(position) && isOnTheBoard(position)) {
+            if(!occupiedByObstacle(position) && !occupiedByCharacter(position) && !occupiedByEnemy(position) && isOnTheBoard(position)) {
               $scope.game.enemies[enemyIndex].left = targetLeft;
               $scope.game.enemies[enemyIndex].top = targetTop;
             }
-            logCombatInfo($scope.game.characters[characterIndex].name + " uses smash.  The enemy falls backwards!");
+            logCombatInfo($scope.game.characters[characterIndex].name + " uses smash.  The enemy falls backwards! <br>");
             damageEnemy(enemyIndex, 2);
           } else {
             logCombatInfo("No enemy in that square, try again! <br>");
@@ -151,18 +151,16 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   var highlightBasicMeleeAttack = function () {
     var activePlayerIndex = findCharacterIndex();
         var activePlayer = $scope.game.characters[activePlayerIndex];
-        var leftTarget = activePlayer.left - 50;
-        var rightTarget = activePlayer.left + 50;
-        var topTarget = activePlayer.top - 50;
-        var bottomTarget = activePlayer.top + 50;
+        var maxDistance = 50;
         //highlight tiles to click
         $scope.game.tilesToHighlight = [];
         for(var i in $scope.game.combatTiles) {
           var tileLeft = $scope.game.combatTiles[i].left;
           var tileTop = $scope.game.combatTiles[i].top;
           var position = {left: tileLeft, top: tileTop};
-          if( tileLeft >= leftTarget && tileLeft <= rightTarget && tileTop >= topTarget && tileTop <= bottomTarget ) {
-            if(!occupiedByHazard(position)  && !occupiedByCharacter(position)) {
+          var distanceToTile = findDistance(position, activePlayer);
+          if( distanceToTile <= maxDistance ) {
+            if(!occupiedByObstacle(position)  && !occupiedByCharacter(position)) {
               $scope.game.combatTiles[i].class += " highlightAttack";
               $scope.game.tilesToHighlight.push($scope.game.combatTiles[i]);
             }
@@ -359,9 +357,9 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     return occupied;
   };
 
-  var occupiedByHazard = function (unoccupiedPosition) {
+  var occupiedByObstacle = function (unoccupiedPosition) {
     var occupied = false;
-    //loop through enemies
+    //loop through obstacles
     for(var h in $scope.game.obstacles) {
       if(unoccupiedPosition.top == $scope.game.obstacles[h].top && unoccupiedPosition.left == $scope.game.obstacles[h].left) {
         occupied = true;
@@ -587,13 +585,9 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   var checkRange = function (targetCharacterIndex, activeEnemyIndex) {
     var inRange = false;
     var enemyRange = $scope.game.enemies[activeEnemyIndex].range;
-    var leftTarget = $scope.game.characters[targetCharacterIndex].left - (50 * enemyRange);
-    var rightTarget = $scope.game.characters[targetCharacterIndex].left + (50 * enemyRange);
-    var topTarget = $scope.game.characters[targetCharacterIndex].top - (50 * enemyRange);
-    var bottomTarget = $scope.game.characters[targetCharacterIndex].top + (50 * enemyRange);
-    var tileLeft = $scope.game.enemies[activeEnemyIndex].left;
-    var tileTop = $scope.game.enemies[activeEnemyIndex].top;
-    if (tileLeft >= leftTarget && tileLeft <= rightTarget && tileTop >= topTarget && tileTop <= bottomTarget) {
+    var maxDistance = 50 * enemyRange;
+    var distanceToTarget = findDistance($scope.game.characters[targetCharacterIndex], $scope.game.enemies[activeEnemyIndex]);
+    if (distanceToTarget <= maxDistance) {
       inRange = true;
     }
     
@@ -649,20 +643,18 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       var tileFound = findTile(tile);
       if(tileFound) {
         $scope.hasMoved = true;
-        var leftTarget = $scope.game.characters[characterIndex].left - 50;
-        var rightTarget = $scope.game.characters[characterIndex].left + 50;
-        var topTarget = $scope.game.characters[characterIndex].top - 50;
-        var bottomTarget = $scope.game.characters[characterIndex].top + 50;
+        var character = $scope.game.characters[characterIndex];
         //find valid moves
         $scope.game.validMoves = [];
-        for(var i in $scope.game.combatTiles) {
-          var tileLeft = $scope.game.combatTiles[i].left;
-          var tileTop = $scope.game.combatTiles[i].top;
-          var position = {top: tileTop, left: tileLeft};
-          if( tileLeft >= leftTarget && tileLeft <= rightTarget && tileTop >= topTarget && tileTop <= bottomTarget ) {
-            if(!occupiedByHazard(position)  && !occupiedByCharacter(position) && !occupiedByEnemy(position)) {
-              $scope.game.validMoves.push($scope.game.combatTiles[i]);
-            }
+        var positions = [
+          { left: character.left - 50, top: character.top },
+          { left: character.left + 50, top: character.top },
+          { left: character.left, top: character.top - 50 },
+          { left: character.left, top: character.top + 50 }
+        ];
+        for(var i in positions) {
+          if(!occupiedByCharacter(positions[i]) && !occupiedByEnemy(positions[i]) && !occupiedByObstacle(positions[i])) {
+            $scope.game.validMoves.push(positions[i]);
           }
         }
         //figure out which move is closer to the target Tile
@@ -719,21 +711,14 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   var moveEnemy = function (targetCharacterIndex, activeEnemyIndex) {
     //list of valid moves
-    var leftTarget = $scope.game.enemies[activeEnemyIndex].left - 50;
-    var rightTarget = $scope.game.enemies[activeEnemyIndex].left + 50;
-    var topTarget = $scope.game.enemies[activeEnemyIndex].top - 50;
-    var bottomTarget = $scope.game.enemies[activeEnemyIndex].top + 50;
     $scope.game.validMoves = [];
-    for(var i in $scope.game.combatTiles) {
-      var tileLeft = $scope.game.combatTiles[i].left;
-      var tileTop = $scope.game.combatTiles[i].top;
-      var position = {top: tileTop, left: tileLeft};
-      if( tileLeft >= leftTarget && tileLeft <= rightTarget && tileTop >= topTarget && tileTop <= bottomTarget ) {
-        if(!occupiedByHazard(position)  && !occupiedByEnemy(position)  && !occupiedByCharacter(position)) {
-          $scope.game.validMoves.push($scope.game.combatTiles[i]);
-        }
-      }
-    }
+    var activeEnemy = $scope.game.enemies[activeEnemyIndex];
+    $scope.game.validMoves = [
+          { left: activeEnemy.left - 50, top: activeEnemy.top },
+          { left: activeEnemy.left + 50, top: activeEnemy.top },
+          { left: activeEnemy.left, top: activeEnemy.top - 50 },
+          { left: activeEnemy.left, top: activeEnemy.top + 50 }
+        ];
     //figure out which move is closer to the character
     $scope.game.validMoves.sort(function(a, b) {
       var x1 = $scope.game.characters[targetCharacterIndex].left;
@@ -1036,6 +1021,14 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         }
   };
 
+  var findDistance = function(position1, position2) {
+    var x1 = position1.left;
+    var x2 = position1.top;
+    var b1 = position2.left;
+    var b2 = position2.top;
+    return Math.sqrt( (x1-b1)*(x1-b1) + (x2-b2)*(x2-b2) );
+  }
+
   $scope.highlightCombat = function(combatOption) {
       clearCombatTiles();
       $scope.showCombatItems = false;
@@ -1058,24 +1051,22 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       } else {
         multiplier = $scope.game.characters[findCharacterIndex()].range;
       }
-      var leftTarget = activePlayer.left - (50 * multiplier);
-      var rightTarget = activePlayer.left + (50 * multiplier);
-      var topTarget = activePlayer.top - (50 * multiplier);
-      var bottomTarget = activePlayer.top + (50 * multiplier);
+      var maxDistance = 50 * multiplier;
       //highlight tiles to click
       $scope.game.tilesToHighlight = [];
       for(var i in $scope.game.combatTiles) {
         var tileLeft = $scope.game.combatTiles[i].left;
         var tileTop = $scope.game.combatTiles[i].top;
         var position = {left: tileLeft, top: tileTop};
-        if( tileLeft >= leftTarget && tileLeft <= rightTarget && tileTop >= topTarget && tileTop <= bottomTarget ) {
+        var tileDistance = findDistance(position, activePlayer);
+        if(tileDistance <= maxDistance) {
           if(combatOption == "attack") {
-            if(!occupiedByHazard(position)  && !occupiedByCharacter(position)) {
+            if(!occupiedByObstacle(position)  && !occupiedByCharacter(position)) {
               $scope.game.combatTiles[i].class += highlightTile;
               $scope.game.tilesToHighlight.push($scope.game.combatTiles[i]);
             }
           } else {
-            if(!occupiedByHazard(position)  && !occupiedByCharacter(position) && !occupiedByEnemy(position)) {
+            if(!occupiedByObstacle(position)  && !occupiedByCharacter(position) && !occupiedByEnemy(position)) {
               $scope.game.combatTiles[i].class += highlightTile;
               $scope.game.tilesToHighlight.push($scope.game.combatTiles[i]);
             }
@@ -1631,7 +1622,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         var tileTop = $scope.game.combatTiles[i].top;
         var position = {left: tileLeft, top: tileTop};
         if( tileLeft >= leftTarget && tileLeft <= rightTarget && tileTop >= topTarget && tileTop <= bottomTarget ) {
-          if(!occupiedByHazard(position)) {
+          if(!occupiedByObstacle(position)) {
             $scope.game.combatTiles[i].class += " highlightAttack";
             $scope.game.tilesToHighlight.push($scope.game.combatTiles[i]);
           }
