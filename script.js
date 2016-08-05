@@ -1207,6 +1207,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   var damageEnemy = function (enemyIndex, specialMultiplier) {
     var characterIndex = findCharacterIndex();
+    $scope.game.characters[characterIndex].xp++;
     var damageMax = 1;
     var critMulti = 1;
     var attributeDamage = Math.floor($scope.game.characters[characterIndex].str / 2);
@@ -1258,7 +1259,13 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       //find the enemyindex
       var enemyIndex = findEnemyIndex(tile);
       if($scope.game.characters[characterIndex].weapon && $scope.game.characters[characterIndex].weapon.range > 1) {
-        animateCharacterRangedAttack(tile, characterIndex, enemyIndex);
+        if(enemyIndex){
+          animateCharacterRangedAttack(tile, characterIndex, enemyIndex);
+        } else {
+          logCombatInfo("No enemy in that square, try again! <br>");
+        }
+        clearCombatTiles();
+        $scope.attackMode = false;
       } else {
         //damage the enemy
         if(enemyIndex) {
@@ -1337,7 +1344,6 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     var activePlayerIndex = findCharacterIndex();
     if($scope.combatMode == "attack") {
       resolveAttack(tile);
-      $scope.game.characters[activePlayerIndex].xp++;
     } else if($scope.combatMode == "move") {
       travelToHereCombat(tile);
     } else if($scope.combatMode == "useItem") {
