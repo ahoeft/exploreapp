@@ -143,7 +143,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     { name: "carapace", requiredItems: "2 shell ", itemType: "material", img: "./images/carapace.png", description: "The hard exoskeleton of some beast." },
     { name: "sandstone hut", requiredItems: "5 sandstone ", itemType: "structure", img: "./images/sandstonehut.png", description: "This structure will protect you from monsters at night!" },
     { name: "glass shank", requiredItems: "1 gel & 1 glass ", itemType: "weapon", img: "./images/glassshank.png", description: "A sharp chunk of glass that will make your enemies bleed.", damage: 4, range: 1, specialMoves: [ "rend" ]},
-    { name: "driftwood wand", requiredItems: "1 driftwood & 1 pearl ", itemType: "weapon", img: "./images/driftwoodwand.png", description: "A magical wand used for blasting enemies!", damage: 3, range: 2, projectileClass: "Energywave", specialMoves: [ "fireblast" ]},
+    { name: "driftwood wand", requiredItems: "1 driftwood & 1 pearl ", itemType: "weapon", img: "./images/driftwoodwand.png", description: "A magical wand used for blasting enemies!", damage: 3, range: 3, projectileClass: "Energywave", specialMoves: [ "fireblast" ]},
     { name: "glass spear", requiredItems: "1 carapace & 1 glass ", itemType: "weapon", img: "./images/glassspear.png", description: "A shortspear imbued with holy power.", damage: 4, range: 1, specialMoves: [ "regen" ]},
     { name: "beach pipe", requiredItems: "1 glass & 1 gel ", itemType: "weapon", img: "./images/beachpipe.png", description: "A short ranged blowgun, useful for those who want to control the battlefield.", damage: 3, range: 3, projectileClass: "Dart", specialMoves: [ "poison cloud" ]},
     { name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", itemType: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 4, range: 1, specialMoves: [ "smash" ]},
@@ -152,7 +152,10 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     { name: "carapace armor", requiredItems: "2 gel & 2 carapace ", itemType: "armor", img: "./images/carapacearmor.png", description: "This heavy armor protects its wearer at the cost of speed.", bonusHealth: 4, speedPenalty: 1, manaPenalty: 0},
     { name: "pearl", requiredItems: "5 clam ", itemType: "material", img: "./images/pearl.png", description: "A shiney pearl.  This is useful for crafting magical things."},
     { name: "sandy salve", requiredItems: "1 sand & 1 gel ", itemType: "combatHeal", img: "./images/sandysalve.png", description: "Just... rub some dirt in that wound.", heal: 4},
-    { name: "sandy salvo", requiredItems: "1 sand & 1 carapace ", itemType: "combatHarm", img: "./images/sandysalvo.png", description: "Ouch! Sand in the eyes! Thats gotta sting.", damage: 4, radius: 1, range: 1}
+    { name: "sandy salvo", requiredItems: "1 sand & 1 carapace ", itemType: "combatHarm", img: "./images/sandysalvo.png", description: "Ouch! Sand in the eyes! Thats gotta sting.", damage: 4, radius: 1, range: 1},
+    { name: "quick boots", requiredItems: "1 sand & 1 slime ", itemType: "boots", img: "./images/quickboots.png", description: "Feel the need, for speed!", bonusHealth: 0, bonusMana: 0, bonusSpeed: 1},
+    { name: "sturdy boots", requiredItems: "1 sand & 1 gel ", itemType: "boots", img: "./images/sturdyboots.png", description: "Solid quality.  These will last you awhile.", bonusHealth: 2, bonusMana: 0, bonusSpeed: 0},
+    { name: "magi boots", requiredItems: "1 sand & 1 pudding ", itemType: "boots", img: "./images/magiboots.png", description: "Magic flows through your tippy toes.", bonusHealth: 0, bonusMana: 2, bonusSpeed: 0}
   ];//ToDo add sandy salve image; add sandy salvo image; add driftwood wand image;
   //starting items to test with
   $scope.game.inventory.push({ name: "crude bow", type: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3, projectileClass: "Arrow", specialMoves: [ "called shot" ]});
@@ -189,7 +192,11 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   $scope.droppableItems = [
     { name: "gel", img: "./images/gel.png", type:"material", description: "A sticky crafting material." },
     { name: "carapace", img: "./images/carapace.png", type:"material", description: "The hard exoskeleton of some beast." },
-    { name: "pearl", img: "./images/pearl.png", type:"material", description: "A beautiful gem said to be the tear of an angel." }
+    { name: "pearl", img: "./images/pearl.png", type:"material", description: "A beautiful gem said to be the tear of an angel." },
+    { name: "slime", img: "./image/slime.png", type: "material", description: "Yuck! It reminds you of boogers."},
+    { name: "pudding", img: "./image/pudding.png", type: "material", description: "Hmm, strange pink pudding. What can you use this for?"},
+    { name: "slime staff", img: "./images/slimestaff.png", type: "weapon", description: "A staff of wondrous slimey power!", damage: 6, range: 3, projectileClass: "slimeblob", specialMoves: [ "slimeblast" ] },
+    { name: "pudding axe", img:"./iamges/puddingaxe.png", type: "weapon", description: "A pink axe dripping with deadly... pudding?", damage: 6, range: 1, specialMoves: ["smash"]}
   ];
 
   var isOnTheBoard = function (position) {
@@ -358,7 +365,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     } 
   };
 
-  var drawEncounterMap = function () {
+  var drawEncounterMap = function (lair) {
     var id = 1;
     $scope.game.combatTiles = [];
     for (var i = 0; i < 10; i++) {
@@ -366,7 +373,12 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         var tile = {};
         tile.column = q;
         tile.row = i;
-        tile.class = $scope.game.team.location + " combat";
+        if(lair) {
+          tile.class = lair.class + " combat";
+        } else {
+          tile.class = $scope.game.team.location + " combat";
+        }
+        
         tile.top = (tile.row * 50) + 100;
         tile.left = (tile.column * 50) + 250;
         tile.id = id;
@@ -466,24 +478,75 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     }
   };
 
-  var fetchRandomEnemy = function () {
+  var fetchRandomEnemy = function (lair) {
     var enemy = {};
     var randomPercent = getRandomPercent();
-    if($scope.game.team.location == "beach") {
-      if(randomPercent < 33) {
-        enemy = {
-          name: "Giant Crab",
-          class: "crab",
-          health: 6,
-          mana: 1,
-          str: 2,
-          dex: 2,
-          int: 2,
-          damage: 2,
-          speed: 2,
-          xp: 30,
-          drops: "1 carapace ",
-          range: 1
+    if(lair) {
+      if(lair.class == "slimepits") {
+        if(randomPercent < 33) {
+            enemy = { 
+              name: "Blue Jelly",
+              class: "bluejelly",
+              health: 4,
+              mana: 1,
+              str: 2,
+              dex: 2,
+              int: 2,
+              damage: 3,
+              speed: 2,
+              xp: 30,
+              drops: "1 gel ",
+              range: 1 
+          };
+        } else if (randomPercent < 66) {
+          enemy = {
+            name: "Green Slime",
+            class: "greenslime",
+            health: 8,
+            mana: 1,
+            str: 2,
+            dex: 6,
+            int: 2,
+            damage: 4,
+            speed: 2,
+            xp: 40,
+            drops: "1 slime ",
+            range: 3,
+            projectile: "slimeblob"
+          };
+        } else {
+          enemy = {
+            name: "Pink Pudding",
+            class: "pinkpudding",
+            health: 12,
+            mana: 1,
+            str: 6,
+            dex: 2,
+            int: 2,
+            damage: 4,
+            speed: 2,
+            xp: 40,
+            drops: "1 pudding ",
+            range: 1
+          };
+        }
+      }
+    } else {
+      if($scope.game.team.location == "beach") {
+        if(randomPercent < 33) {
+          enemy = {
+            name: "Giant Crab",
+            class: "crab",
+            health: 6,
+            mana: 1,
+            str: 2,
+            dex: 2,
+            int: 2,
+            damage: 2,
+            speed: 2,
+            xp: 30,
+            drops: "1 carapace ",
+            range: 1
         };
       } else if(randomPercent < 66) {
         enemy = { 
@@ -501,34 +564,35 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
           range: 1 
         };
       } else {
-        enemy = { 
-          name: "Baspica",
-          class: "baspica",
-          health: 4,
-          mana: 1,
-          str: 2,
-          dex: 2,
-          int: 2,
-          damage: 3,
-          speed: 0,
-          xp: 40,
-          drops: "1 pearl ",
-          range: 3,
-          projectile: "pearlshot" 
-        };
+          enemy = { 
+            name: "Baspica",
+            class: "baspica",
+            health: 4,
+            mana: 1,
+            str: 2,
+            dex: 2,
+            int: 2,
+            damage: 3,
+            speed: 0,
+            xp: 40,
+            drops: "1 pearl ",
+            range: 3,
+            projectile: "pearlshot" 
+          };
+        }
       }
     }
     return enemy;
   }
 
-  var drawEnemies = function () {
+  var drawEnemies = function (lair) {
     $scope.game.enemies = [];
     var numEnemies = Math.round(Math.random() * 4) + 1;
     if($scope.game.night == "night") {
       numEnemies = numEnemies + 2;
     }
     for(var n = 0; n < numEnemies; n++) {
-      var enemy = fetchRandomEnemy();
+      var enemy = fetchRandomEnemy(lair);
       //set position to off the board
       enemy.name += " " + (n + 1);
       enemy.top = 50;
@@ -935,21 +999,31 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     }
   };
 
-  var drawObstacles = function () {
-      $scope.game.obstacles = [];
-
-      var numHazards = Math.round(Math.random() * 10) + 10;
-      for(var i = 0; i < numHazards; i++) {
-        var obstacle = {};
-        if("beach" == $scope.game.team.location) {
-          var randomPercent = getRandomPercent();
+  var fetchRandomObstacle = function(lair) {
+    var obstacle = {};
+    var randomPercent = getRandomPercent();
+    if(lair) {
+      if(lair.class == "slimepits") {
+        obstacle.class = "slimerock obstacle";
+      }
+    } else {
+      if("beach" == $scope.game.team.location) {
+          
           if(randomPercent < 50) {
             obstacle.class = "rock obstacle";
           } else {
             obstacle.class = "palmtree obstacle";
           }
         }
-        
+    }
+    return obstacle;
+  };
+
+  var drawObstacles = function (lair) {
+      $scope.game.obstacles = [];
+      var numHazards = Math.round(Math.random() * 10) + 10;
+      for(var i = 0; i < numHazards; i++) {
+        var obstacle = fetchRandomObstacle(lair);
         obstacle.left = 200;
         obstacle.top = 50;
         $scope.game.obstacles.push(obstacle);
@@ -958,11 +1032,13 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   var generateEncounter = function() {
     //starting encounter
+    $scope.numOfEncounters = 1;
+    $scope.encounterTally = 1;
     clearCombatLog();
-    drawEncounterMap();
-    drawEnemies();
+    drawEncounterMap(undefined);
+    drawEnemies(undefined);
     drawCharacters();
-    drawObstacles();
+    drawObstacles(undefined);
     positionCombatants();
     rollInitiative();
     $scope.showCombatItems = false;
@@ -1266,13 +1342,46 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     }
   };
 
-  var endCombat = function() {
-    for(var i in $scope.game.characters) {
-      var charNum = parseInt(i) + 1;
-      $scope.game.characters[i].class = "avatar" + charNum;
+  var dropLairLoot = function() {
+    var lair = findLairByLocation();
+    if(lair) {
+      if(lair.class == "slimepits") {
+        var totalLoot = Math.round(Math.random() * 5) + 5;
+        for(var i = 0; i < totalLoot; i++) {
+          var randomPercent = getRandomPercent();
+          var item = {};
+          if(randomPercent < 30) {
+            item = findItemByName("gel");
+          } else if(randomPercent < 60) {
+            item = findItemByName("slime");
+          } else if(randomPercent < 90) {
+            item = findItemByName("pudding");
+          } else if(randomPercent < 95) {
+            item = findItemByName("slime staff");
+          } else {
+            item = findItemByName("pudding axe");
+          }
+          $scope.inventory.push(item);
+        }
+      }
     }
-    $scope.activeView = 'showGame';
-    logOverlandInfo("You have successfully defeated the enemies! <br>");
+  };
+
+  var endCombat = function() {
+    if($scope.numOfEncounters == $scope.encounterTally) {
+      for(var i in $scope.game.characters) {
+        var charNum = parseInt(i) + 1;
+        $scope.game.characters[i].class = "avatar" + charNum;
+      }
+      $scope.activeView = 'showGame';
+      logOverlandInfo("You have successfully defeated the enemies! <br>");
+      if($scope.numOfEncounters > 1) {
+        dropLairLoot();
+      }
+    } else {
+      $scope.encounterTally++;
+      $scope.nextEncounter();
+    }
   };
 
   var dropLoot = function(enemyIndex) {
@@ -1620,8 +1729,18 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     }
   };
 
+  var checkForLair = function() {
+    for(var i in $scope.game.lairs) {
+      if($scope.game.team.left == $scope.game.lairs[i].left && $scope.game.team.top == $scope.game.lairs[i].top){
+        $scope.lairHere = true;
+        break;
+      }
+    }
+  };
+
   $scope.loadThisGame = function (game) {
     $scope.game = game;
+    checkForLair();
     $scope.activeView = 'showGame';
   };
 
@@ -1810,6 +1929,51 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     //perform the highlight
     if($scope.activeSpecialMove) {
       $scope.activeSpecialMove.highlight();
+    }
+  };
+
+  var findLairByLocation = function() {
+    var lair =  undefined;
+    for(var i in $scope.game.lairs) {
+      if($scope.game.lairs[i].left == $scope.game.team.left && $scope.game.lairs[i].top == $scope.game.team.top) {
+        lair = $scope.game.lairs[i];
+      }
+    }
+    return lair;
+  };
+
+  var generateLairEncounter = function() {
+    clearCombatLog();
+    var lair = findLairByLocation();
+    drawEncounterMap(lair);
+    drawEnemies(lair);
+    drawObstacles(lair);
+    drawCharacters();
+    positionCombatants();
+    rollInitiative();
+    $scope.showCombatItems = false;
+    $scope.showCombatSpecial = false;
+    $scope.activeView = 'showCombatView';
+    $scope.doNextCombatRound(true);
+  };
+
+  $scope.raidLair = function() {
+    var lair = findLairByLocation();
+    if(lair) {
+      if(lair.class == "slimepits") {
+        $scope.numOfEncounters = 3;
+        $scope.encounterTally = 1;
+      } else if(lair.class == "crabbycove") {
+        $scope.numOfEncounters = 3;
+        $scope.encounterTally = 1;
+      } else if(lair.class == "floodedcave") {
+        $scope.numOfEncounters = 3;
+        $scope.encounterTally = 1;
+      }
+      $scope.nextEncounter = function() {
+        generateLairEncounter();
+      };
+      generateLairEncounter();
     }
   };
 });

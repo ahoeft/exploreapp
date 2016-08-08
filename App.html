@@ -77,8 +77,8 @@
 						
 						ng-click="travelToHere(tile)"></span>
 				<span class="worldCharacter" style="top: {{game.team.top}}px; left: {{game.team.left}}px"></span>
-				<span ng-repeat="lair in game.lairs" 
-						class="lair {{lair.class}}" 
+				<span id="{{lair.class}}" ng-repeat="lair in game.lairs" 
+						class="lair" 
 						style="top: {{lair.top}}px; left: {{lair.left}}px"
 						ng-mouseover="infoHover(lair.name)"></span>
 			</div>
