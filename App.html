@@ -183,6 +183,21 @@
 			</ul>
 		</div>
 		<div id="craftItemArea">
+			<div class="floatOn">
+				<table>
+					<caption>Inventory</caption>
+					<tr>
+						<td></td>
+						<td>Item Name</td>
+						<td>Item Type</td>
+					</tr>
+					<tr ng-repeat="item in game.inventory track by $index" ng-click="selectItemFromInventory(item)" ng-mouseover="itemInfo(item)">
+						<td><img ng-src="{{item.img}}"></td>
+						<td>{{item.name}}</td>
+						<td>{{item.type}}</td>
+					</tr>
+				</table>
+			</div>
 			<div ng-hide="showEquipables" class="floatOn">
 				<table>
 					<caption>Recipes</caption>
@@ -190,13 +205,11 @@
 						<td></td>
 						<td>Recipe Name</td>
 						<td>Required Items</td>
-						<td>Item Type</td>
 					</tr>
 					<tr ng-repeat="recipe in game.availableRecipes track by $index" ng-click="craftMe(recipe)">
 						<td><img ng-src="{{recipe.img}}"></td>
 						<td>{{recipe.name}}</td>
 						<td>{{recipe.requiredItems}}</td>
-						<td>{{recipe.itemType}}</td>
 					</tr>
 				</table>
 			</div>
@@ -212,23 +225,6 @@
 						<td><img ng-src="{{item.img}}"></td>
 						<td>{{item.name}}</td>
 						<td>{{item.type}}</td>
-					</tr>
-				</table>
-			</div>
-			<div class="floatOn">
-				<table>
-					<caption>Inventory</caption>
-					<tr>
-						<td></td>
-						<td>Item Name</td>
-						<td>Item Type</td>
-						<td>Item Description</td>
-					</tr>
-					<tr ng-repeat="item in game.inventory track by $index" ng-click="selectItemFromInventory(item)">
-						<td><img ng-src="{{item.img}}"></td>
-						<td>{{item.name}}</td>
-						<td>{{item.type}}</td>
-						<td>{{item.description}}</td>
 					</tr>
 				</table>
 			</div>

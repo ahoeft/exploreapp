@@ -155,7 +155,13 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     { name: "sandy salvo", requiredItems: "1 sand & 1 carapace ", itemType: "combatHarm", img: "./images/sandysalvo.png", description: "Ouch! Sand in the eyes! Thats gotta sting.", damage: 4, radius: 1, range: 1},
     { name: "quick boots", requiredItems: "1 sand & 1 slime ", itemType: "boots", img: "./images/quickboots.png", description: "Feel the need, for speed!", bonusHealth: 0, bonusMana: 0, bonusSpeed: 1},
     { name: "sturdy boots", requiredItems: "1 sand & 1 gel ", itemType: "boots", img: "./images/sturdyboots.png", description: "Solid quality.  These will last you awhile.", bonusHealth: 2, bonusMana: 0, bonusSpeed: 0},
-    { name: "magi boots", requiredItems: "1 sand & 1 pudding ", itemType: "boots", img: "./images/magiboots.png", description: "Magic flows through your tippy toes.", bonusHealth: 0, bonusMana: 2, bonusSpeed: 0}
+    { name: "magi boots", requiredItems: "1 sand & 1 pudding ", itemType: "boots", img: "./images/magiboots.png", description: "Magic flows through your tippy toes.", bonusHealth: 0, bonusMana: 2, bonusSpeed: 0},
+    { name: "gel", requiredItems: "2 slime ", itemType: "material", img: "./images/gel.png", description: "A sticky crafting material." },
+    { name: "gel", requiredItems: "2 pudding ", itemType: "material", img: "./images/gel.png", description: "A sticky crafting material." },
+    { name: "slime", requiredItems: "2 gel ", itemType: "material", img: "./images/slime.png", description: "A slimey crafting material." },
+    { name: "slime", requiredItems: "2 pudding ", itemType: "material", img: "./images/slime.png", description: "A slimey crafting material." },
+    { name: "pudding", requiredItems: "2 slime ", itemType: "material", img: "./images/pudding.png", description: "A tasty crafting material." },
+    { name: "pudding", requiredItems: "2 gel ", itemType: "material", img: "./images/pudding.png", description: "A tasty crafting material." },
   ];//ToDo add sandy salve image; add sandy salvo image; add driftwood wand image;
   //starting items to test with
   $scope.game.inventory.push({ name: "crude bow", type: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3, projectileClass: "Arrow", specialMoves: [ "called shot" ]});
@@ -367,7 +373,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       }
       logOverlandInfo("You successfully harvest " + randomAmount + " " + item.name + ". <br>");
       var randomLairChance = getRandomPercent();
-      if(randomLairChance > 50) {
+      if(randomLairChance < 25) {
         foundLair();
       }
     } else {
@@ -469,7 +475,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   var replaceTile = function(hazard) {
     for(var i in $scope.game.combatTiles) {
       if($scope.game.combatTiles[i].left == hazard.left && $scope.game.combatTiles[i].top == hazard.top) {
-        $scope.game.combatTiles[i].class = "tile " + $scope.game.night + " " + hazard.class;
+        $scope.game.combatTiles[i].class = hazard.class;
         break;
       }
     }
@@ -1153,10 +1159,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   var checkForEncounter = function () {
     var randomPercent = getRandomPercent();
-    if(randomPercent > 60 && $scope.game.night == "day") {
-      generateEncounter();
-    }
-    if(randomPercent > 20 && $scope.game.night == "night") {
+    if(randomPercent < 33) {
       generateEncounter();
     }
   };
@@ -1368,7 +1371,6 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
             }
           } else {
             if(!occupiedByObstacle(position)  && !occupiedByCharacter(position) && !occupiedByEnemy(position)) {
-              //$scope.game.combatTiles[i].class += highlightTile;
               $scope.potentialMoveTiles.push($scope.game.combatTiles[i]);
             }
           }
@@ -2132,5 +2134,9 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       condition = "<span style='color:lightgreen'>wounded</span>";
     }
     logCombatInfo("<span style='color: red'>" + enemy.name + "</span> looks " + condition + ". <br>");
+  };
+
+  $scope.itemInfo = function(item) {
+    $scope.infoBox = item.description;
   };
 });
