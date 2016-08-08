@@ -568,3 +568,12 @@ tr:hover {
     z-index: 3;
     background-image: url("./images/slimepoolMove.png");
 }
+
+.slimeblob {
+    background-image: url("./images/slimeblob.png");
+    position: absolute;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    z-index: 9999;
+}
