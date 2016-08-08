@@ -129,13 +129,13 @@ li {
     
 }
 
-.highlightAttack {
+.beachAttack {
     opacity: .5;
     z-index: 3;
     background-image: url("./images/attackbeach.png") !important;
 }
 
-.highlightMove {
+.beachMove {
     opacity: .5;
     z-index: 3;
     background-image: url("./images/highlightbeach.png") !important;
@@ -438,6 +438,14 @@ tr:hover {
    background-image: url("./images/slimepitCombat.png"); 
 }
 
+.slimepitsMove {
+    background-image: url("./images/slimepitsMove.png")
+}
+
+.slimepitsAttack {
+    background-image: url("./images/slimepitsAttack.png")
+}
+
 .Energywavedown {
     background-image: url("./images/downEnergywave.png");
     position: absolute;
@@ -522,4 +530,13 @@ tr:hover {
 
 .greenslime {
     background-image: url("./images/greenslime.png");
+}
+
+.pinkpudding {
+    background-image: url("./images/pinkpudding.png");
+}
+
+.slimerock {
+    background-image: url("./images/slimerock.png");
+    z-index: 4;
 }

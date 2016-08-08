@@ -93,7 +93,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         var characterIndex = findCharacterIndex();
         for(var i in $scope.game.combatTiles) {
           if($scope.game.combatTiles[i].top == $scope.game.characters[characterIndex].top && $scope.game.combatTiles[i].left == $scope.game.characters[characterIndex].left) {
-            $scope.game.combatTiles[i].class += " highlightAttack";
+            $scope.game.combatTiles[i].class += "Attack";
           }
         }
       },
@@ -220,7 +220,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
           var distanceToTile = findDistance(position, activePlayer);
           if( distanceToTile <= maxDistance ) {
             if(!occupiedByObstacle(position)  && !occupiedByCharacter(position)) {
-              $scope.game.combatTiles[i].class += " highlightAttack";
+              $scope.game.combatTiles[i].class += "Attack";
               $scope.game.tilesToHighlight.push($scope.game.combatTiles[i]);
             }
           }
@@ -374,9 +374,9 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         tile.column = q;
         tile.row = i;
         if(lair) {
-          tile.class = lair.class + " combat";
+          tile.class = lair.class;
         } else {
-          tile.class = $scope.game.team.location + " combat";
+          tile.class = $scope.game.team.location;
         }
         
         tile.top = (tile.row * 50) + 100;
@@ -1175,8 +1175,8 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   var clearCombatTiles = function () {
     $scope.game.tilesToHighlight = [];
     for(var i in $scope.game.combatTiles) {
-            $scope.game.combatTiles[i].class = $scope.game.combatTiles[i].class.replace(" highlightMove", "");
-            $scope.game.combatTiles[i].class = $scope.game.combatTiles[i].class.replace(" highlightAttack", "");
+            $scope.game.combatTiles[i].class = $scope.game.combatTiles[i].class.replace("Move", "");
+            $scope.game.combatTiles[i].class = $scope.game.combatTiles[i].class.replace("Attack", "");
         }
   };
 
@@ -1230,10 +1230,10 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       $scope.showCombatItems = false;
       $scope.showCombatSpecial = false;
       //figure out where the team is
-      var highlightTile = " highlightMove";
+      var highlightTile = "Move";
       $scope.combatMode = combatOption;
       if(combatOption == "attack") {
-        highlightTile = " highlightAttack";
+        highlightTile = "Attack";
       }
       var activePlayer = {};
       for(c in $scope.game.characters) {
@@ -1274,7 +1274,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       for(var x in $scope.potentialMoveTiles) {
         var tile = canReachTile(activePlayer, $scope.potentialMoveTiles[x]);
         if(tile) {
-          $scope.game.combatTiles[tile.id - 1].class += " highlightMove";
+          $scope.game.combatTiles[tile.id - 1].class += "Move";
           $scope.game.tilesToHighlight.push(tile);
         }
       }
@@ -1522,7 +1522,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   };
 
   var throwCombatItem = function (tile) {
-    if(tile.class.includes("highlightAttack")) {
+    if(tile.class.includes("Attack")) {
       //determine what enemies are hit
       var characterIndex = findCharacterIndex();
       var multiplier = $scope.itemToThrow.radius;
@@ -1879,7 +1879,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         var position = {left: tileLeft, top: tileTop};
         if( tileLeft >= leftTarget && tileLeft <= rightTarget && tileTop >= topTarget && tileTop <= bottomTarget ) {
           if(!occupiedByObstacle(position)) {
-            $scope.game.combatTiles[i].class += " highlightAttack";
+            $scope.game.combatTiles[i].class += "Attack";
             $scope.game.tilesToHighlight.push($scope.game.combatTiles[i]);
           }
         }
@@ -1975,5 +1975,18 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       };
       generateLairEncounter();
     }
+  };
+
+  $scope.enemyInfo = function(enemy) {
+    var condition = "<span style='color:green'>healthy</span>";
+    var percentHealthLeft = Math.round(((enemy.health - enemy.damageTaken) / enemy.health) * 100);
+    if(percentHealthLeft < 25) {
+      condition = "like it's about to <span style='color:red'>die</span>";
+    } else if (percentHealthLeft < 50) {
+      condition = "<span style='color:yellow'>hurt</span>";
+    } else if (percentHealthLeft < 75) {
+      condition = "<span style='color:lightgreen'>wounded</span>";
+    }
+    logCombatInfo("<span style='color: red'>" + enemy.name + "</span> looks " + condition + ". <br>");
   };
 });

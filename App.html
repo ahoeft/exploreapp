@@ -317,13 +317,13 @@
 		</div>
 		<div class="c2">
 			<span ng-repeat="tile in game.combatTiles" 
-						class="tile {{tile.class}} {{game.night}}" 
+						class="tile {{game.night}} {{tile.class}}" 
 						style="top: {{tile.top}}px; left: {{tile.left}}px" 
 						ng-click="resolveCombatAction(tile)"></span>
 			<span ng-repeat="enemy in game.enemies" 
 						class="enemy tile {{enemy.class}}" 
 						style="top: {{enemy.top}}px; left: {{enemy.left}}px"
-						id="enemy{{$index}}"></span>
+						id="enemy{{$index}}" ng-click="enemyInfo(enemy)"></span>
 			<span ng-repeat="character in game.characters" 
 						class="{{character.class}} character tile" 
 						style="top: {{character.top}}px; left: {{character.left}}px">
