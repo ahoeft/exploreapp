@@ -456,6 +456,15 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     }
   };
 
+  var replaceTile = function(hazard) {
+    for(var i in $scope.game.combatTiles) {
+      if($scope.game.combatTiles[i].left == hazard.left && $scope.game.combatTiles[i].top == hazard.top) {
+        $scope.game.combatTiles[i].class = "tile " + $scope.game.night + " " + hazard.class;
+        break;
+      }
+    }
+  };
+
   var positionCombatants = function () {
     //first place enemies
     for(var e in $scope.game.enemies) {
@@ -475,6 +484,13 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       var unoccupiedPosition = findUnoccupiedPosition();
       $scope.game.obstacles[h].left = unoccupiedPosition.left;
       $scope.game.obstacles[h].top = unoccupiedPosition.top;
+    }
+    //finally place hazards
+    for(var h in $scope.game.hazards) {
+      var unoccupiedPosition = findUnoccupiedPosition();
+      $scope.game.hazards[h].left = unoccupiedPosition.left;
+      $scope.game.hazards[h].top = unoccupiedPosition.top;
+      replaceTile($scope.game.hazards[h]);
     }
   };
 
@@ -943,6 +959,16 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     }
   };
 
+  var checkForHazard = function(position) {
+    var hazard = undefined;
+    for(var i in $scope.game.hazards) {
+      if(position.left == $scope.game.hazards[i].left && position.top == $scope.game.hazards[i].top) {
+        hazard = $scope.game.hazards[i];
+      }
+    }
+    return hazard;
+  };
+
   var startCharacterTurn = function() {
     var characterIndex = findCharacterIndex();
     $scope.hasAttacked = false;
@@ -959,6 +985,16 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       } else {
         $scope.game.characters[characterIndex].damageTaken -= $scope.game.characters[characterIndex].regen;
         logCombatInfo($scope.game.characters[characterIndex].name + " regenerates <span style='color: lightgreen'>" + $scope.game.characters[characterIndex].regen + "</span> health. <br>");
+      }
+    }
+    var hazard = checkForHazard($scope.game.characters[characterIndex]);
+    if(hazard) {
+      if("sandpit" == hazard.class) {
+        $scope.game.characters[characterIndex].movesTaken++;
+        logCombatInfo("The sand pit swhirls and " + $scope.game.characters[characterIndex].name + " loses 1 move. <br>");
+      } else if("slimepool" == hazard.class) {
+        //$scope.game.characters[]
+        logCombatInfo("You stepped in slime! <br>");
       }
     }
   };
@@ -1030,6 +1066,31 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       }
   };
 
+  var fetchRandomHazard = function(lair) {
+    var hazard = {};
+    if(lair) {
+      if(lair.class == "slimepits") {
+        hazard.class == "slimepool";
+      }
+    } else {
+      if("beach" == $scope.game.team.location) {
+        hazard.class = "sandpit";
+      }
+    }
+    return hazard;
+  };
+
+  var drawHazards = function(lair) {
+    $scope.game.hazards = [];
+      var numHazards = Math.round(Math.random() * 10);
+      for(var i = 0; i < numHazards; i++) {
+        var hazard = fetchRandomHazard(lair);
+        hazard.left = 200;
+        hazard.top = 50;
+        $scope.game.hazards.push(hazard);
+      }
+  };
+
   var generateEncounter = function() {
     //starting encounter
     $scope.numOfEncounters = 1;
@@ -1039,6 +1100,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     drawEnemies(undefined);
     drawCharacters();
     drawObstacles(undefined);
+    drawHazards(undefined);
     positionCombatants();
     rollInitiative();
     $scope.showCombatItems = false;

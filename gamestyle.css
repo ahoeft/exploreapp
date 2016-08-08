@@ -540,3 +540,15 @@ tr:hover {
     background-image: url("./images/slimerock.png");
     z-index: 4;
 }
+
+.sandpit {
+    background-image: url("./images/sandpit.png");
+}
+
+.sandpitMove {
+    background-image: url("./images/sandpitMove.png");
+}
+
+.sandpitAttack {
+    background-image: url("./images/sandpitAttack.png");
+}
