@@ -1084,7 +1084,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     var hazard = {};
     if(lair) {
       if(lair.class == "slimepits") {
-        hazard.class == "slimepool";
+        hazard.class = "slimepool";
         hazard.resolve = function(characterTurn) {
           if(characterTurn) {
             var characterIndex = findCharacterIndex();
@@ -1786,7 +1786,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     }
     var healthFromBoots = 0;
     if($scope.game.characters[index].boots) {
-      healthFromBoots = $scope.game.character[index].boots.bonusHealth;
+      healthFromBoots = $scope.game.characters[index].boots.bonusHealth;
     }
     $scope.game.characters[index].health =  baseHealth + healthFromStr + healthFromArmor + healthFromBoots;
   };
@@ -1800,7 +1800,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     }
     var manaFromBoots = 0;
     if($scope.game.characters[index].boots) {
-      manaFromBoots = $scope.game.character[index].boots.bonusMana;
+      manaFromBoots = $scope.game.characters[index].boots.bonusMana;
     }
     $scope.game.characters[index].mana = baseMana + manaFromInt + manaFromArmor + manaFromBoots;
   };
@@ -1808,12 +1808,12 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
   var calculateSpeed = function(index) {
     var baseSpeed = 3;
     var speedFromArmor = 0;
-    if($scope.game.character[index].armor) {
-      speedFromArmor = $scope.game.character[index].armor.bonusSpeed;
+    if($scope.game.characters[index].armor) {
+      speedFromArmor = $scope.game.characters[index].armor.bonusSpeed;
     }
     var speedFromBoots = 0;
-    if($scope.game.character[index].boots) {
-      speedFromBoots = $scope.game.character[index].boots.bonusSpeed;
+    if($scope.game.characters[index].boots) {
+      speedFromBoots = $scope.game.characters[index].boots.bonusSpeed;
     }
     $scope.game.characters[index].speed = baseSpeed + speedFromArmor + speedFromBoots;
   };

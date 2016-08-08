@@ -439,10 +439,12 @@ tr:hover {
 }
 
 .slimepitsMove {
+    z-index: 3;
     background-image: url("./images/slimepitsMove.png")
 }
 
 .slimepitsAttack {
+    z-index: 3;
     background-image: url("./images/slimepitsAttack.png")
 }
 
@@ -551,4 +553,18 @@ tr:hover {
 
 .sandpitAttack {
     background-image: url("./images/sandpitAttack.png");
+}
+
+.slimepool {
+    background-image: url("./images/slimepool.png");
+}
+
+.slimepoolAttack {
+    z-index: 3;
+    background-image: url("./images/slimepoolAttack.png");
+}
+
+.slimepoolMove {
+    z-index: 3;
+    background-image: url("./images/slimepoolMove.png");
 }
