@@ -149,6 +149,25 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         }
       },
       manaCost: 1
+    },
+    {
+      name: "fireblast",
+      highlight: function(){
+        highlightBasicAttack(6);
+      },
+      perform: function(tile) {
+        var enemyIndex = findEnemyIndex(tile);
+        if(enemyIndex) {
+          animateCharacterRangedAttack(tile, findCharacterIndex(), enemyIndex, "Fireblast", function(){
+            damageEnemy(enemyIndex, 2);
+            $scope.hasAttacked = true;
+            $scope.showCombatSpecial = false;
+          });
+        } else {
+          logCombatInfo("No enemy found, try again! <br>");
+        }
+      },
+      manaCost: 1
     }
   ];
   $scope.recipeDB = [
@@ -158,7 +177,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     { name: "sandstone hut", requiredItems: "5 sandstone ", itemType: "structure", img: "./images/sandstonehut.png", description: "This structure will protect you from monsters at night!" },
     { name: "glass shank", requiredItems: "1 gel & 1 glass ", itemType: "weapon", img: "./images/glassshank.png", description: "A sharp chunk of glass that will make your enemies bleed.", damage: 4, range: 1, specialMoves: [ "rend" ]},
     { name: "driftwood wand", requiredItems: "1 driftwood & 1 pearl ", itemType: "weapon", img: "./images/driftwoodwand.png", description: "A magical wand used for blasting enemies!", damage: 3, range: 3, projectileClass: "Energywave", specialMoves: [ "fireblast" ]},
-    { name: "glass spear", requiredItems: "1 carapace & 1 glass ", itemType: "weapon", img: "./images/glassspear.png", description: "A shortspear imbued with holy power.", damage: 4, range: 1, specialMoves: [ "regen" ]},
+    { name: "glass spear", requiredItems: "1 carapace & 1 glass ", itemType: "weapon", img: "./images/glassspear.png", description: "A shortspear, useful for poking things.", damage: 4, range: 1, specialMoves: [ "poke" ]},
     { name: "beach pipe", requiredItems: "1 glass & 1 gel ", itemType: "weapon", img: "./images/beachpipe.png", description: "A short ranged blowgun, useful for those who want to control the battlefield.", damage: 3, range: 3, projectileClass: "Dart", specialMoves: [ "poison cloud" ]},
     { name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", itemType: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 4, range: 1, specialMoves: [ "smash" ]},
     { name: "crude bow", requiredItems: "1 driftwood & 1 gel ", itemType: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3, projectileClass: "Arrow", specialMoves: [ "called shot" ]},
@@ -1719,10 +1738,10 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     $scope.hasAttacked = true;
   };
 
-  var animateCharacterRangedAttack = function(targetTile, characterIndex, enemyIndex, success) {
+  var animateCharacterRangedAttack = function(targetTile, characterIndex, enemyIndex, projectileClass, success) {
     $scope.projectile.top = $scope.game.characters[characterIndex].top;
     $scope.projectile.left = $scope.game.characters[characterIndex].left;
-    $scope.projectile.class = $scope.game.characters[characterIndex].weapon.projectileClass;
+    $scope.projectile.class = projectileClass;
     var direction = findClosestPosition(targetTile);
     $scope.projectile.class += direction.name;
     $scope.showProjectile = true;

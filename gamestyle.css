@@ -577,3 +577,39 @@ tr:hover {
     width: 50px;
     z-index: 9999;
 }
+
+.Fireblastleft {
+    background-image: url("./images/leftFireblast.png");
+    position: absolute;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    z-index: 9999;
+}
+
+.Fireblastright {
+    background-image: url("./images/rightFireblast.png");
+    position: absolute;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    z-index: 9999;
+}
+
+.Fireblastup {
+    background-image: url("./images/upFireblast.png");
+    position: absolute;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    z-index: 9999;
+}
+
+.Fireblastdown {
+    background-image: url("./images/downFireblast.png");
+    position: absolute;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    z-index: 9999;
+}
