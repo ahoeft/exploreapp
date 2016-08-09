@@ -120,7 +120,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         var enemyIndex = findEnemyIndex(tile);
         if(enemyIndex) {
           $scope.game.characters[characterIndex].manaSpent++;
-          animateCharacterRangedAttack(tile, characterIndex, enemyIndex, function() {
+          animateCharacterRangedAttack(tile, characterIndex, enemyIndex, $scope.game.characters[characterIndex].weapon.projectileClass, function() {
             $scope.showProjectile = false;
             var randomPercent = getRandomPercent();
             if(randomPercent > 50) {
@@ -514,7 +514,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   var replaceTile = function(hazard) {
     for(var i in $scope.game.combatTiles) {
-      if($scope.game.combatTiles[i].left == hazard.left && $scope.game.combatTiles[i].top == hazard.top) {
+      if($scope.game.combatTiles[i].left == hazard.left && $scope.game.combatTiles[i].top == hazard.top && hazard.class) {
         $scope.game.combatTiles[i].class = hazard.class;
         break;
       }
@@ -1177,6 +1177,8 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     if(lair) {
       if(lair.class == "slimepits") {
         obstacle.class = "slimerock obstacle";
+      } else if(lair.class == "crabbycove") {
+        obstacle.class = "crabbyrock obstacle";
       }
     } else {
       if("beach" == $scope.game.team.location) {
@@ -1766,7 +1768,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       var enemyIndex = findEnemyIndex(tile);
       if($scope.game.characters[characterIndex].weapon && $scope.game.characters[characterIndex].weapon.range > 1) {
         if(enemyIndex){
-          animateCharacterRangedAttack(tile, characterIndex, enemyIndex, function() {
+          animateCharacterRangedAttack(tile, characterIndex, enemyIndex, $scope.game.characters[characterIndex].weapon.projectileClass, function() {
             $scope.showProjectile = false;
             damageEnemy(enemyIndex, 1);
             clearCombatTiles();

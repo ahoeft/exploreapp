@@ -1,3 +1,12 @@
+/*
+    This is the Explore App CSS
+    For Combat Maps the Dom Stack should look like:
+    tile; index = 1
+    hazards; index = 2
+    characters & enemies; index = 3
+    highlights; index = 4
+    obstacles; index = 5
+*/
 ul {
     list-style-type: none;
     margin: 0;
@@ -113,31 +122,30 @@ li {
 }
 
 .worldCharacter {
-    z-index: 4;
     position: absolute;
     display: inline-block;
     height: 50px;
     width: 50px;
-    z-index: 3;
+    z-index: 4;
     background-image: url("./images/worldCharacter.png");
 }
 
 .highlightTile {
     opacity: .5;
-    z-index: 3;
+    z-index: 4;
     background-image: url("./images/highlightbeach.png") !important;
     
 }
 
 .beachAttack {
     opacity: .5;
-    z-index: 3;
+    z-index: 4;
     background-image: url("./images/attackbeach.png") !important;
 }
 
 .beachMove {
     opacity: .5;
-    z-index: 3;
+    z-index: 4;
     background-image: url("./images/highlightbeach.png") !important;
 }
 
@@ -175,7 +183,7 @@ tr:hover {
 }
 
 .enemy {
-    z-index: 2;
+    z-index: 3;
 }
 
 .gel {
@@ -199,7 +207,7 @@ tr:hover {
     border-radius: 25px;
 }
 .character {
-    z-index: 2;
+    z-index: 3;
 }
 
 .menuDisabled {
@@ -207,13 +215,13 @@ tr:hover {
 }
 
 .rock {
-    background-image: url("./images/transparent/transparentrock.png");
-    z-index: 4;
+    background-image: url("./images/transparentrock.png");
+    z-index: 5;
 }
 
 .palmtree {
     background-image: url("./images/palmtree.png");
-    z-index: 4;
+    z-index: 5;
 }
 
 .avatar1 {
@@ -427,7 +435,7 @@ tr:hover {
     position: absolute;
     width: 50px;
     height: 50px;
-    z-index: 2;
+    z-index: 3;
 }
 
 #slimepits {
@@ -439,12 +447,12 @@ tr:hover {
 }
 
 .slimepitsMove {
-    z-index: 3;
+    z-index: 4;
     background-image: url("./images/slimepitsMove.png")
 }
 
 .slimepitsAttack {
-    z-index: 3;
+    z-index: 4;
     background-image: url("./images/slimepitsAttack.png")
 }
 
@@ -540,7 +548,7 @@ tr:hover {
 
 .slimerock {
     background-image: url("./images/slimerock.png");
-    z-index: 4;
+    z-index: 5;
 }
 
 .sandpit {
@@ -560,12 +568,12 @@ tr:hover {
 }
 
 .slimepoolAttack {
-    z-index: 3;
+    z-index: 4;
     background-image: url("./images/slimepoolAttack.png");
 }
 
 .slimepoolMove {
-    z-index: 3;
+    z-index: 4;
     background-image: url("./images/slimepoolMove.png");
 }
 
@@ -612,4 +620,27 @@ tr:hover {
     height: 50px;
     width: 50px;
     z-index: 9999;
+}
+
+#crabbycove {
+    background-image: url("./images/crabbycove.png");
+}
+
+.crabbycove {
+   background-image: url("./images/crabbycoveCombat.png"); 
+}
+
+.crabbycoveMove {
+    z-index: 4;
+    background-image: url("./images/crabbycoveMove.png")
+}
+
+.crabbycoveAttack {
+    z-index: 4;
+    background-image: url("./images/crabbycoveAttack.png")
+}
+
+.crabbyrock {
+    background-image: url("./images/crabbyrock.png");
+    z-index: 5;
 }
