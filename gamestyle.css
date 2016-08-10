@@ -408,6 +408,7 @@ tr:hover {
     color: white;
     border-radius: 50%;
     padding: 5px;
+    margin: 10px;
 }
 
 .disabled {
@@ -448,11 +449,13 @@ tr:hover {
 
 .slimepitsMove {
     z-index: 4;
+    opacity: .5;
     background-image: url("./images/slimepitsMove.png")
 }
 
 .slimepitsAttack {
     z-index: 4;
+    opacity: .5;
     background-image: url("./images/slimepitsAttack.png")
 }
 
@@ -556,10 +559,12 @@ tr:hover {
 }
 
 .sandpitMove {
+    opacity: .5;
     background-image: url("./images/sandpitMove.png");
 }
 
 .sandpitAttack {
+    opacity: .5;
     background-image: url("./images/sandpitAttack.png");
 }
 
@@ -569,11 +574,13 @@ tr:hover {
 
 .slimepoolAttack {
     z-index: 4;
+    opacity: .5;
     background-image: url("./images/slimepoolAttack.png");
 }
 
 .slimepoolMove {
     z-index: 4;
+    opacity: .5;
     background-image: url("./images/slimepoolMove.png");
 }
 
@@ -632,11 +639,13 @@ tr:hover {
 
 .crabbycoveMove {
     z-index: 4;
+    opacity: .5;
     background-image: url("./images/crabbycoveMove.png")
 }
 
 .crabbycoveAttack {
     z-index: 4;
+    opacity: .5;
     background-image: url("./images/crabbycoveAttack.png")
 }
 

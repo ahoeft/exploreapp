@@ -119,6 +119,8 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         var characterIndex = findCharacterIndex();
         var enemyIndex = findEnemyIndex(tile);
         if(enemyIndex) {
+          $scope.showCombattSpecial = false;
+          $scope.hasAttacked = true;
           $scope.game.characters[characterIndex].manaSpent++;
           animateCharacterRangedAttack(tile, characterIndex, enemyIndex, $scope.game.characters[characterIndex].weapon.projectileClass, function() {
             $scope.showProjectile = false;
@@ -128,7 +130,6 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
               damageEnemy(enemyIndex, 3);
             } else {
               logCombatInfo($scope.game.characters[characterIndex].name + "'s called shot wiffs! <br>");
-              $scope.hasAttacked = true;
             }
           });
         } else {
@@ -146,6 +147,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         var enemyIndex = findEnemyIndex(tile);
         if(enemyIndex) {
           damageEnemy(enemyIndex, 2);
+          $scope.showComabtSpecial = false;
         }
       },
       manaCost: 1
@@ -162,6 +164,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
             damageEnemy(enemyIndex, 2);
             $scope.hasAttacked = true;
             $scope.showCombatSpecial = false;
+            $scope.showProjectile = false;
             $scope.game.characters[findCharacterIndex()].manaSpent++;
           });
         } else {
@@ -183,6 +186,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         if(enemyIndex) {
           $scope.game.characters[characterIndex].manaSpent++;
           $scope.hasAttacked = true;
+          $scope.showCombatSpecial = false;
           animateCharacterRangedAttack(tile, characterIndex, enemyIndex, projectileClass, function() {
               damageEnemy(enemyIndex, 1);
               $scope.showProjectile = false;
@@ -210,7 +214,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     { name: "carapace", requiredItems: "2 shell ", itemType: "material", img: "./images/carapace.png", description: "The hard exoskeleton of some beast." },
     { name: "sandstone hut", requiredItems: "5 sandstone ", itemType: "structure", img: "./images/sandstonehut.png", description: "This structure will protect you from monsters at night!" },
     { name: "glass shank", requiredItems: "1 gel & 1 glass ", itemType: "weapon", img: "./images/glassshank.png", description: "A sharp chunk of glass that will make your enemies bleed.", damage: 4, range: 1, specialMoves: [ "rend" ]},
-    { name: "driftwood wand", requiredItems: "1 driftwood & 1 pearl ", itemType: "weapon", img: "./images/driftwoodwand.png", description: "A magical wand used for blasting enemies!", damage: 3, range: 3, projectileClass: "Energywave", specialMoves: [ "fireblast" ]},
+    { name: "driftwood wand", requiredItems: "1 driftwood & 1 pearl ", itemType: "weapon", img: "./images/driftwoodwand.png", description: "A magical wand used for blasting enemies!", damage: 2, range: 3, projectileClass: "Energywave", specialMoves: [ "fireblast" ]},
     { name: "glass spear", requiredItems: "1 carapace & 1 glass ", itemType: "weapon", img: "./images/glassspear.png", description: "A shortspear, useful for poking things.", damage: 4, range: 1, specialMoves: [ "poke" ]},
     { name: "beach pipe", requiredItems: "1 glass & 1 gel ", itemType: "weapon", img: "./images/beachpipe.png", description: "A short ranged blowgun, useful for those who want to control the battlefield.", damage: 2, range: 3, projectileClass: "Dart", specialMoves: [ "triple shot" ]},
     { name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", itemType: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 4, range: 1, specialMoves: [ "smash" ]},
@@ -277,7 +281,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     { name: "crabby armor", img: "./images/crabbyarmor.png", type: "armor", description: "Only shellfish king would wear this!", bonusHealth: 6, bonusMana: -1, bonusSpeed: -1},
     { name: "longbow of the waves", img: "./images/longboofthewaves.png", type: "weapon", description: "Fire the power of the ocean!", damage: 4, range: 3, projectileClass: "Wave", specialMoves: ["called shot", "wave shot"] },
     { name: "shard of lightning", img: "./images/shardoflightning.png", type: "weapon", description: "A blade made of pure lightning.", damage: 6, range: 1, projectileClass: "Lightningbolt", specialMoves: ["rend", "zap"]},
-    { name: "charged shell armor", img:"./images/chargedshellarmor.png", type: "armor", description: "A coarse scale armor, infused with electrical energy.", bonusHealth: 4, bonusMana: 0, bonusSpeed: 1 }
+    { name: "charged shell armor", img:"./images/chargedshellarmor.png", type: "armor", description: "A coarse scale armor, infused with electrical energy.", bonusHealth: 3, bonusMana: 0, bonusSpeed: 1 }
   ];
 
   var isOnTheBoard = function (position) {
@@ -398,7 +402,6 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     //check if lair exists
     var lairExists = checkIfLairExists();
     if(!lairExists) {
-      logOverlandInfo("You found a lair! <br>");
       var lair = {
         left: $scope.game.team.left,
         top: $scope.game.team.top,
@@ -407,7 +410,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       var randomPercent = getRandomPercent();
       if(lair.tile == "beach") {
         if(randomPercent < 33) {
-          lair.name = "Slime Pits";
+          lair.name = "Slime Pit";
           lair.class = "slimepits";
           lair.maxEnemies = 6;
         } else if (randomPercent < 66) {
@@ -422,6 +425,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       } //TODO add images for the above lairs.
       $scope.lairHere = true;
       $scope.game.lairs.push(lair);
+      logOverlandInfo("You found a " + lair.name + "!<br>");
     }
   };
 
@@ -486,8 +490,10 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     for(var i in $scope.game.characters) {
       $scope.game.characters[i].top = 50;
       $scope.game.characters[i].left = 200;
-      $scope.game.characters[i].damageTaken = 0;
-      $scope.game.characters[i].manaSpent = 0;
+      if($scope.encounterTally == 1) {
+        $scope.game.characters[i].damageTaken = 0;
+        $scope.game.characters[i].manaSpent = 0;
+      }
       $scope.game.characters[i].movesTaken = 0;
     }
   };
@@ -1383,7 +1389,9 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       type: recipe.itemType, 
       description: recipe.description, 
       damage: recipe.damage,
-      bonusHealth: recipe.bonusHealth, 
+      bonusHealth: recipe.bonusHealth,
+      bonusMana: recipe.bonusMana,
+      bonusSpeed: recipe.bonusSpeed, 
       speedPenalty: recipe.speedPenalty, 
       manaPenalty: recipe.manaPenalty,
       heal: recipe.heal,
@@ -1980,6 +1988,21 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     if("loading" == objectName) {
       $scope.infoBox = "This is the Load Game Option.  Select this to abandon this game and load a different one!";
       return;
+    }
+
+    if("Slime Pit" == objectName) {
+      $scope.infoBox = "A Slime Pit!  Great Oozey prizes await you!";
+      return;
+    }
+
+    if("Crabby Cove" == objectName) {
+      $scope.infoBox = "A Crabby Cove.  Creepy crustaceans crawl from every crevice!";
+      return;
+    }
+
+    if("Flooded Cave" == objectName) {
+      $scope.infoBox = "A Flooded Cave.  What treasures can you find in the depths?";
+      return;
     }       
   };
   
@@ -2137,7 +2160,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   $scope.unequipArmor = function (characterIndex) {
     addToInventory($scope.game.characters[characterIndex].armor);
-    $scope.game.characters[characterIndex].armor = { bonusHealth: 0, speedPenalty: 0, manaPenalty: 0 };
+    $scope.game.characters[characterIndex].armor = undefined;
     $scope.game.characters[characterIndex].armorEquipped = false;    
   };
 
@@ -2156,7 +2179,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   $scope.unequipBoots = function (characterIndex) {
     addToInventory($scope.game.characters[characterIndex].boots);
-    $scope.game.characters[characterIndex].boots = {};
+    $scope.game.characters[characterIndex].boots = undefined;
     $scope.game.characters[characterIndex].bootsEquipped = false;
   };
 
@@ -2175,7 +2198,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   $scope.unequipWeapon = function(characterIndex){
     addToInventory($scope.game.characters[characterIndex].weapon);
-    $scope.game.characters[characterIndex].weapon = {};
+    $scope.game.characters[characterIndex].weapon = undefined;
     $scope.game.characters[characterIndex].weaponEquipped = false;
     $scope.game.characters[characterIndex].range = 1;
   };

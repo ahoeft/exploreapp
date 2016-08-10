@@ -145,7 +145,7 @@
 		Load Showing
 		<div>
 			<ul>
-				<li class="btn" ng-repeat="game in savedGames">
+				<li class="btn" ng-repeat="game in savedGames track by $index">
 					<a ng-click="loadThisGame(game)">{{game.name}}</a>
 					<i ng-click="deleteSaveFile(game, $index)" class="fa fa-trash-o" aria-hidden="true"></i>
 				</li>
@@ -161,12 +161,6 @@
 					<a ng-mouseover="infoHover('worldMap')" 
 						
 						ng-click="navToWorldMap()">World Map</a> 
-				</li>
-				<li class="btn">
-					<i class="fa fa-flask" aria-hidden="true"></i>
-					<a ng-mouseover="infoHover('equip')" 
-						
-						ng-click="equipItem()">Equip Items</a>
 				</li>
 				<li class="btn">
 					<i class="fa fa-floppy-o" aria-hidden="true"></i>
@@ -306,7 +300,7 @@
 					<li ng-repeat="special in specialMoves track by $index">
 						<a ng-hide="special.disable" class="btn" ng-click="highlightSpecialMove(special.name)">{{special.name}}</a>
 						<a ng-show="special.disable" class="btn disabled">{{special.name}}</a> 
-						<span class="manacost"> {{special.manaCost}} </span>
+						<div class="manacost"> {{special.manaCost}} </div>
 					</li>
 				</ul>
 			</div>
