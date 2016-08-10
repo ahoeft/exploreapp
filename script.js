@@ -700,14 +700,14 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
           enemy = {
             name: "Electric Eel",
             class: "electriceel",
-            health: 6,
+            health: 4,
             mana: 1,
-            str: 2,
-            dex: 2,
-            int: 2,
+            str: 1,
+            dex: 1,
+            int: 1,
             damage: 2,
-            speed: 10,
-            xp: 40,
+            speed: 6,
+            xp: 30,
             drops: "1 electrode ",
             range: 1
           };
