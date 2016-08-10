@@ -162,10 +162,44 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
             damageEnemy(enemyIndex, 2);
             $scope.hasAttacked = true;
             $scope.showCombatSpecial = false;
+            $scope.game.characters[findCharacterIndex()].manaSpent++;
           });
         } else {
           logCombatInfo("No enemy found, try again! <br>");
         }
+      },
+      manaCost: 1
+    },
+    {
+      name: "triple shot",
+      highlight: function() {
+        highlightBasicAttack(3);
+      },
+      perform: function(tile) {
+        var enemyIndex = findEnemyIndex(tile);
+        var characterIndex = findCharacterIndex();
+        var enemyTurnOrderIndex = findTurnToRemove(enemyIndex);
+        var projectileClass = $scope.game.characters[characterIndex].weapon.projectileClass;
+        if(enemyIndex) {
+          $scope.game.characters[characterIndex].manaSpent++;
+          $scope.hasAttacked = true;
+          animateCharacterRangedAttack(tile, characterIndex, enemyIndex, projectileClass, function() {
+              damageEnemy(enemyIndex, 1);
+              $scope.showProjectile = false;
+              if(!$scope.turnOrder[enemyTurnOrderIndex].isDead) {
+                animateCharacterRangedAttack(tile, characterIndex, enemyIndex, projectileClass, function() {
+                  damageEnemy(enemyIndex, 1);
+                  $scope.showProjectile = false;
+                  if(!$scope.turnOrder[enemyTurnOrderIndex].isDead) {
+                    animateCharacterRangedAttack(tile, characterIndex, enemyIndex, projectileClass, function() {
+                      damageEnemy(enemyIndex, 1);
+                      $scope.showProjectile = false;
+                    });
+                  }
+                });
+              }
+          });
+        }     
       },
       manaCost: 1
     }
@@ -178,7 +212,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     { name: "glass shank", requiredItems: "1 gel & 1 glass ", itemType: "weapon", img: "./images/glassshank.png", description: "A sharp chunk of glass that will make your enemies bleed.", damage: 4, range: 1, specialMoves: [ "rend" ]},
     { name: "driftwood wand", requiredItems: "1 driftwood & 1 pearl ", itemType: "weapon", img: "./images/driftwoodwand.png", description: "A magical wand used for blasting enemies!", damage: 3, range: 3, projectileClass: "Energywave", specialMoves: [ "fireblast" ]},
     { name: "glass spear", requiredItems: "1 carapace & 1 glass ", itemType: "weapon", img: "./images/glassspear.png", description: "A shortspear, useful for poking things.", damage: 4, range: 1, specialMoves: [ "poke" ]},
-    { name: "beach pipe", requiredItems: "1 glass & 1 gel ", itemType: "weapon", img: "./images/beachpipe.png", description: "A short ranged blowgun, useful for those who want to control the battlefield.", damage: 3, range: 3, projectileClass: "Dart", specialMoves: [ "poison cloud" ]},
+    { name: "beach pipe", requiredItems: "1 glass & 1 gel ", itemType: "weapon", img: "./images/beachpipe.png", description: "A short ranged blowgun, useful for those who want to control the battlefield.", damage: 2, range: 3, projectileClass: "Dart", specialMoves: [ "triple shot" ]},
     { name: "beatin' stick", requiredItems: "1 driftwood & 1 carapace ", itemType: "weapon", img: "./images/beatinstick.png", description: "A thick wooden club for smashing enemies.", damage: 4, range: 1, specialMoves: [ "smash" ]},
     { name: "crude bow", requiredItems: "1 driftwood & 1 gel ", itemType: "weapon", img: "./images/crudebow.png", description: "A simple ranged weapon for the dextrous.", damage: 3, range: 3, projectileClass: "Arrow", specialMoves: [ "called shot" ]},
     { name: "shell armor", requiredItems: "2 gel & 2 shell ", itemType: "armor", img: "./images/shellarmor.png", description: "This lightweight armor helps new islanders survive.", bonusHealth: 2, bonusSpeed: 0, bonusMana: 0 },
@@ -203,17 +237,17 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     type: "weapon", 
     img: "./images/beachpipe.png", 
     description: "A short ranged blowgun, useful for those who want to control the battlefield.", 
-    damage: 3, 
+    damage: 2, 
     range: 3, 
     projectileClass: "Dart", 
-    specialMoves: ["poison cloud" ]
+    specialMoves: ["triple shot" ]
   });
   $scope.game.inventory.push({ 
     name: "driftwood wand", 
     type: "weapon", 
     img: "./images/driftwoodwand.png", 
     description: "A magical wand used for blasting enemies!", 
-    damage: 3, 
+    damage: 2, 
     range: 3, 
     projectileClass: "Energywave", 
     specialMoves: ["fireblast" ]
@@ -225,7 +259,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     description: "A shortspear imbued with holy power.", 
     damage: 4, 
     range: 1, 
-    specialMoves: [ "regen" ]
+    specialMoves: [ "poke" ]
 });
   
   $scope.droppableItems = [
@@ -239,8 +273,11 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     { name: "slime robe", img: "./images/slimerobe.png", type: "armor", description: "Slimey, yet strangely comfy.", bonusHealth: 0, bonusMana: 5, bonusSpeed: 0},
     { name: "electrode", img: "./images/electrode.png", type:"material", description: "A charged gland." },
     { name: "reach of the king", img: "./images/reachoftheking.png", type: "weapon", description: "A strangely effective weapon.  It's also good at getting things from behind the couch!", damage: 6, range: 1, specialMoves: ["regen", "poke"]},
-    { name: "carapace blowpipe", img: "./images/carapaceblowpipe.png", type: "weapon", description: "This oddly shaped crab carapace is great for trick shots!", damage: 4, range: 3, specialMoves: ["trick shot"]},
-    { name: "crabby armor", img: "./images/crabbyarmor.png", type: "armor", description: "Only shellfish king would wear this!", bonusHealth: 6, bonusMana: -1, bonusSpeed: -1}
+    { name: "carapace blowpipe", img: "./images/carapaceblowpipe.png", type: "weapon", description: "This oddly shaped crab carapace is great for trick shots!", damage: 3, range: 3, projectileClass: "Dart",  specialMoves: ["triple shot"]},
+    { name: "crabby armor", img: "./images/crabbyarmor.png", type: "armor", description: "Only shellfish king would wear this!", bonusHealth: 6, bonusMana: -1, bonusSpeed: -1},
+    { name: "longbow of the waves", img: "./images/longboofthewaves.png", type: "weapon", description: "Fire the power of the ocean!", damage: 4, range: 3, projectileClass: "Wave", specialMoves: ["called shot", "wave shot"] },
+    { name: "shard of lightning", img: "./images/shardoflightning.png", type: "weapon", description: "A blade made of pure lightning.", damage: 6, range: 1, projectileClass: "Lightningbolt", specialMoves: ["rend", "zap"]},
+    { name: "charged shell armor", img:"./images/chargedshellarmor.png", type: "armor", description: "A coarse scale armor, infused with electrical energy.", bonusHealth: 4, bonusMana: 0, bonusSpeed: 1 }
   ];
 
   var isOnTheBoard = function (position) {
@@ -1692,13 +1729,18 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     }
   };
 
-  var killEnemy = function(enemyIndex) {
+  var findTurnToRemove = function(enemyIndex) {
     var turnToRemove = 0;
     for(var t in $scope.turnOrder) {
       if ($scope.turnOrder[t].name == $scope.game.enemies[enemyIndex].name) {
         turnToRemove = t;
       }
     }
+    return turnToRemove;
+  };
+
+  var killEnemy = function(enemyIndex) {
+    var turnToRemove = findTurnToRemove(enemyIndex);
     dropLoot(enemyIndex);
     giveExperience(enemyIndex, findCharacterIndex());
     $scope.turnOrder[turnToRemove].isDead = true;
