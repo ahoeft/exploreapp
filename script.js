@@ -119,17 +119,17 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         var characterIndex = findCharacterIndex();
         var enemyIndex = findEnemyIndex(tile);
         if(enemyIndex) {
-          $scope.showCombattSpecial = false;
+          $scope.showCombatSpecial = false;
           $scope.hasAttacked = true;
           $scope.game.characters[characterIndex].manaSpent++;
           animateCharacterRangedAttack(tile, characterIndex, enemyIndex, $scope.game.characters[characterIndex].weapon.projectileClass, function() {
             $scope.showProjectile = false;
             var randomPercent = getRandomPercent();
-            if(randomPercent > 50) {
+            if(randomPercent > 49) {
               logCombatInfo($scope.game.characters[characterIndex].name + "'s called shot hits for massive damage! <br>");
               damageEnemy(enemyIndex, 3);
             } else {
-              logCombatInfo($scope.game.characters[characterIndex].name + "'s called shot wiffs! <br>");
+              logCombatInfo($scope.game.characters[characterIndex].name + "'s called shot misses! <br>");
             }
           });
         } else {
@@ -146,6 +146,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       perform: function(tile) {
         var enemyIndex = findEnemyIndex(tile);
         if(enemyIndex) {
+          $scope.game.characters[findCharacterIndex()].manaSpent++;
           damageEnemy(enemyIndex, 2);
           $scope.showComabtSpecial = false;
         }
@@ -186,7 +187,6 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         if(enemyIndex) {
           $scope.game.characters[characterIndex].manaSpent++;
           $scope.hasAttacked = true;
-          $scope.showCombatSpecial = false;
           animateCharacterRangedAttack(tile, characterIndex, enemyIndex, projectileClass, function() {
               damageEnemy(enemyIndex, 1);
               $scope.showProjectile = false;
@@ -1180,6 +1180,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
 
   $scope.doNextCombatRound = function (startingRound) {
     clearCombatTiles($scope.activeTurnIndex);
+    $scope.showCombatSpecial = false;
     if(startingRound == false) {
           if($scope.activeTurnIndex == $scope.turnOrder.length - 1) {
             $scope.activeTurnIndex = 0;
