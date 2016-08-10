@@ -653,3 +653,41 @@ tr:hover {
     background-image: url("./images/crabbyrock.png");
     z-index: 5;
 }
+
+#floodedcave {
+    background-image: url("./images/floodedcave.png");
+}
+
+.floodedcave {
+   background-image: url("./images/floodedcaveCombat.png"); 
+}
+
+.floodedcaveMove {
+    z-index: 4;
+    opacity: .5;
+    background-image: url("./images/floodedcaveMove.png")
+}
+
+.floodedcaveAttack {
+    z-index: 4;
+    opacity: .5;
+    background-image: url("./images/floodedcaveAttack.png")
+}
+
+.kelp {
+    background-image: url("./images/kelp.png");
+    z-index: 5;
+}
+
+.coral {
+    background-image: url("./images/coral.png");
+    z-index: 5;
+}
+
+.electriceel {
+    background-image: url("./images/electriceel.png");    
+}
+
+.greaterbaspica {
+    background-image: url("./images/greaterbaspica.png");
+}

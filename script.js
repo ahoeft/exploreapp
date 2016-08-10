@@ -57,7 +57,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
               $scope.game.enemies[enemyIndex].top = targetTop;
             }
             logCombatInfo($scope.game.characters[characterIndex].name + " uses smash.  The enemy falls backwards! <br>");
-            damageEnemy(enemyIndex, 2);
+            damageEnemy(enemyIndex, 2, false);
           } else {
             logCombatInfo("No enemy in that square, try again! <br>");
           }
@@ -77,7 +77,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
           var enemyIndex = findEnemyIndex(tile);
           if(enemyIndex) {
             $scope.game.characters[characterIndex].manaSpent++;
-            damageEnemy(enemyIndex, 1);
+            damageEnemy(enemyIndex, 1, false);
             $scope.game.enemies[enemyIndex].bleeding += 2;
             logCombatInfo($scope.game.characters[characterIndex].name + "uses rend.  The " + $scope.game.enemies[enemyIndex].name + " begins to bleed!");
           }
@@ -122,7 +122,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
             var randomPercent = getRandomPercent();
             if(randomPercent > 49) {
               logCombatInfo($scope.game.characters[characterIndex].name + "'s called shot hits for massive damage! <br>");
-              damageEnemy(enemyIndex, 3);
+              damageEnemy(enemyIndex, 3, false);
             } else {
               logCombatInfo($scope.game.characters[characterIndex].name + "'s called shot misses! <br>");
             }
@@ -142,7 +142,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         var enemyIndex = findEnemyIndex(tile);
         if(enemyIndex) {
           $scope.game.characters[findCharacterIndex()].manaSpent++;
-          damageEnemy(enemyIndex, 2);
+          damageEnemy(enemyIndex, 2, false);
           $scope.showComabtSpecial = false;
         }
       },
@@ -157,7 +157,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         var enemyIndex = findEnemyIndex(tile);
         if(enemyIndex) {
           animateCharacterRangedAttack(tile, findCharacterIndex(), enemyIndex, "Fireblast", function(){
-            damageEnemy(enemyIndex, 2);
+            damageEnemy(enemyIndex, 2, true);
             $scope.hasAttacked = true;
             $scope.showCombatSpecial = false;
             $scope.showProjectile = false;
@@ -182,16 +182,17 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         if(enemyIndex) {
           $scope.game.characters[characterIndex].manaSpent++;
           $scope.hasAttacked = true;
+          $scope.showCombatSpecial = false;
           animateCharacterRangedAttack(tile, characterIndex, enemyIndex, projectileClass, function() {
-              damageEnemy(enemyIndex, 1);
+              damageEnemy(enemyIndex, 1, false);
               $scope.showProjectile = false;
               if(!$scope.turnOrder[enemyTurnOrderIndex].isDead) {
                 animateCharacterRangedAttack(tile, characterIndex, enemyIndex, projectileClass, function() {
-                  damageEnemy(enemyIndex, 1);
+                  damageEnemy(enemyIndex, 1, false);
                   $scope.showProjectile = false;
                   if(!$scope.turnOrder[enemyTurnOrderIndex].isDead) {
                     animateCharacterRangedAttack(tile, characterIndex, enemyIndex, projectileClass, function() {
-                      damageEnemy(enemyIndex, 1);
+                      damageEnemy(enemyIndex, 1, false);
                       $scope.showProjectile = false;
                     });
                   }
@@ -1267,6 +1268,14 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         obstacle.class = "slimerock obstacle";
       } else if(lair.class == "crabbycove") {
         obstacle.class = "crabbyrock obstacle";
+      } else if(lair.class == "floodedcave") {
+        if(randomPercent < 33) {
+          obstacle.class = "kelp obstacle";
+        } else if (randomPercent < 66) {
+          obstacle.class = "coral obstacle";
+        } else {
+          obstacle.class = "rock obstacle";
+        }
       }
     } else {
       if("beach" == $scope.game.team.location) {
@@ -1811,7 +1820,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     }
   };
 
-  var damageEnemy = function (enemyIndex, specialMultiplier) {
+  var damageEnemy = function (enemyIndex, specialMultiplier, isMagic) {
     var characterIndex = findCharacterIndex();
     $scope.game.characters[characterIndex].xp++;
     var damageMax = 1;
@@ -1819,6 +1828,9 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
     var attributeDamage = Math.floor($scope.game.characters[characterIndex].str / 2);
     if($scope.game.characters[characterIndex].range > 1) {
       attributeDamage = Math.floor($scope.game.characters[characterIndex].dex / 2);
+    }
+    if(isMagic) {
+      attributeDamage = Math.floor($scope.game.characters[characterIndex].int / 2);      
     }
     if(Math.round(Math.random() * 99) + 1 > 95) {
           logCombatInfo($scope.game.characters[characterIndex].name + " <em>Crits!</em> <br>");
@@ -1865,7 +1877,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
         if(enemyIndex){
           animateCharacterRangedAttack(tile, characterIndex, enemyIndex, $scope.game.characters[characterIndex].weapon.projectileClass, function() {
             $scope.showProjectile = false;
-            damageEnemy(enemyIndex, 1);
+            damageEnemy(enemyIndex, 1, false);
             clearCombatTiles();
             $scope.attackMode = false;
           });
@@ -1877,7 +1889,7 @@ myApp.controller('mainController', function($scope, $timeout, $sce) {
       } else {
         //damage the enemy
         if(enemyIndex) {
-          damageEnemy(enemyIndex, 1);
+          damageEnemy(enemyIndex, 1, false);
         } else {
           logCombatInfo("No enemy in that square, try again! <br>");
         }
